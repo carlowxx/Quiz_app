@@ -1,0 +1,84 @@
+// Casos de emergência — Nurse GO
+// Caso clínico passo a passo, com barra de vida do paciente: cada conduta
+// errada tira vida conforme a gravidade; vida zero = óbito e a rodada não
+// vale XP.
+//
+// AVISO: conteúdo redigido com apoio de IA e ainda NÃO revisado por
+// enfermeiro(a). Antes de produção: revisão técnica e ampliação (choque,
+// sepse, AVC, intoxicação, trauma), com referência bibliográfica por passo.
+
+import type { TemaQuestao } from "./banco";
+
+export interface PassoCaso {
+  /** enunciado do passo */
+  q: string;
+  /** condutas possíveis (sempre 4) */
+  o: [string, string, string, string];
+  /** índice da conduta correta (0-3) */
+  c: 0 | 1 | 2 | 3;
+  /** vida perdida ao errar este passo (gravidade do erro) */
+  dano: number;
+  /** dica do professor */
+  d: string;
+  /** explicação completa */
+  e: string;
+}
+
+export interface Caso {
+  id: string;
+  tema: TemaQuestao;
+  titulo: string;
+  /** vinheta de abertura do caso */
+  vinheta: string;
+  /** vida inicial do paciente */
+  vidas: number;
+  passos: PassoCaso[];
+}
+
+export const CASOS: Caso[] = [
+  {
+    id: "pcr",
+    tema: "cardio",
+    titulo: "Parada cardiorrespiratória",
+    vinheta: "Homem, 58 anos, colapso súbito no corredor da unidade. Não responde ao chamado.",
+    vidas: 3,
+    passos: [
+      { q: "Você encontra a vítima caída e não responsiva. Qual a primeira conduta?", o: ["Checar pulso por 30 segundos antes de qualquer coisa", "Chamar ajuda, acionar o time de resposta rápida e pedir o desfibrilador", "Iniciar ventilação boca a boca", "Levar o paciente até o leito mais próximo"], c: 1, dano: 1, d: "Antes de qualquer manobra prolongada, você precisa de ajuda e do desfibrilador a caminho.", e: "A sequência do adulto começa por segurança da cena, checagem de responsividade e acionamento imediato do sistema de emergência com pedido do DEA/desfibrilador. Sozinho e sem ajuda, o socorrista perde tempo crítico." },
+      { q: "Você checa pulso carotídeo e respiração por até 10 segundos: ausentes. Conduta?", o: ["Iniciar compressões torácicas imediatamente", "Aguardar o desfibrilador chegar", "Administrar adrenalina antes de comprimir", "Realizar cinco ventilações de resgate primeiro"], c: 0, dano: 2, d: "Sem pulso, o débito cardíaco é zero. O que substitui o coração é a sua mão.", e: "Confirmada a parada, as compressões começam de imediato. Cada minuto sem RCP reduz a sobrevida em cerca de 7 a 10%. No adulto a ordem é C-A-B: compressões antes de via aérea e ventilação." },
+      { q: "Qual a profundidade e a frequência corretas das compressões no adulto?", o: ["3 a 4 cm, 80 a 100 por minuto", "5 a 6 cm, 100 a 120 por minuto", "7 a 8 cm, 120 a 140 por minuto", "A profundidade não importa, apenas a frequência"], c: 1, dano: 1, d: 'Pense em "cem a cento e vinte" e em cerca de um terço do diâmetro do tórax.', e: "Compressões de 5 a 6 cm de profundidade, a 100-120/min, permitindo o retorno total do tórax e minimizando interrupções. Compressões rasas ou rápidas demais reduzem o enchimento e a perfusão coronariana." },
+      { q: "O monitor é acoplado e mostra fibrilação ventricular. Qual a conduta imediata?", o: ["Administrar adrenalina e reavaliar em 2 minutos", "Desfibrilar imediatamente", "Realizar cardioversão sincronizada", "Instalar marca-passo transcutâneo"], c: 1, dano: 3, d: "Fibrilação ventricular é ritmo chocável, e o tempo até o choque é o principal determinante de sobrevida.", e: "FV e TV sem pulso são ritmos chocáveis: a desfibrilação imediata é a intervenção que mais aumenta a sobrevida. A cardioversão sincronizada não se aplica, pois não há complexo organizado para sincronizar." },
+      { q: "Logo após o choque, o que deve ser feito?", o: ["Checar o pulso imediatamente", "Retomar as compressões imediatamente por 2 minutos", "Aguardar 30 segundos observando o monitor", "Administrar amiodarona antes de retomar a RCP"], c: 1, dano: 2, d: "O coração raramente volta a gerar pulso no instante seguinte ao choque.", e: "Após o choque, retoma-se a RCP de imediato por 2 minutos antes de nova checagem de ritmo. Pausas prolongadas para checar pulso derrubam a pressão de perfusão coronariana conquistada pelas compressões." },
+      { q: "A FV persiste após o segundo choque. Qual droga e dose?", o: ["Atropina 1 mg IV", "Adrenalina 1 mg IV, repetida a cada 3 a 5 minutos", "Adenosina 6 mg IV em bolus", "Bicarbonato de sódio 1 mEq/kg"], c: 1, dano: 2, d: "É o vasopressor padrão de toda parada, chocável ou não.", e: "Adrenalina 1 mg IV/IO a cada 3 a 5 minutos. Em ritmo chocável refratário, associa-se amiodarona 300 mg após o terceiro choque. Atropina não tem papel na PCR e o bicarbonato é reservado a situações específicas." },
+    ],
+  },
+  {
+    id: "iam",
+    tema: "cardio",
+    titulo: "Dor torácica na emergência",
+    vinheta: "Mulher, 64 anos, dor torácica opressiva há 40 minutos, sudorese fria, irradiação para o membro superior esquerdo.",
+    vidas: 3,
+    passos: [
+      { q: "Qual a primeira medida diante dessa apresentação?", o: ["Solicitar troponina e aguardar o resultado", "Monitorização e eletrocardiograma de 12 derivações em até 10 minutos", "Administrar morfina para aliviar a dor", "Encaminhar para radiografia de tórax"], c: 1, dano: 2, d: "A decisão de reperfusão depende de um exame que leva menos de dois minutos para ser feito.", e: "Todo paciente com dor torácica sugestiva deve ter ECG de 12 derivações realizado e interpretado em até 10 minutos da chegada. Esperar a troponina atrasa a reperfusão em um infarto com supradesnivelamento." },
+      { q: "O ECG mostra supradesnivelamento de ST em V2, V3 e V4. O que isso indica?", o: ["Infarto de parede inferior", "Infarto de parede anterior", "Pericardite aguda", "Sobrecarga de ventrículo direito"], c: 1, dano: 1, d: "V1 a V4 olham a face anterior do coração.", e: "Supra em V2-V4 caracteriza infarto de parede anterior, geralmente por oclusão da artéria descendente anterior. As derivações D2, D3 e aVF correspondem à parede inferior." },
+      { q: "Qual medicação deve ser administrada de imediato, na ausência de contraindicação?", o: ["Ácido acetilsalicílico 150 a 300 mg mastigado", "Furosemida 40 mg IV", "Dipirona 1 g IV", "Heparina em bolus isoladamente"], c: 0, dano: 2, d: "É a medida antiagregante mais simples e com maior redução de mortalidade comprovada.", e: "AAS 150 a 300 mg mastigado e deglutido reduz mortalidade na síndrome coronariana aguda e deve ser dado o mais precocemente possível, salvo alergia ou sangramento ativo." },
+      { q: "Qual das situações abaixo contraindica o uso de nitrato?", o: ["Dor persistente após o AAS", "Uso de sildenafila nas últimas 24 horas", "Frequência cardíaca de 88 bpm", "Histórico de hipertensão arterial"], c: 1, dano: 2, d: "A combinação com inibidores da fosfodiesterase causa vasodilatação somada.", e: "Nitrato é contraindicado com inibidores de fosfodiesterase nas últimas 24 a 48 horas, em hipotensão e no infarto de ventrículo direito, pelo risco de colapso hemodinâmico." },
+      { q: "Qual a meta de tempo para reperfusão por angioplastia primária?", o: ["Até 30 minutos do primeiro contato médico", "Até 90 minutos do primeiro contato médico", "Até 6 horas do início da dor", "Até 24 horas, desde que haja dor"], c: 1, dano: 1, d: 'A regra prática é "porta-balão" em menos de uma hora e meia.', e: "A angioplastia primária deve ocorrer em até 90 minutos do primeiro contato médico. Se isso não for possível, indica-se fibrinólise em até 30 minutos da chegada, com transferência posterior." },
+      { q: "A paciente evolui com PA 80/50 mmHg, turgência jugular e pulmões limpos. Qual a suspeita?", o: ["Edema agudo de pulmão", "Infarto de ventrículo direito", "Tamponamento cardíaco por ruptura de parede livre", "Choque séptico"], c: 1, dano: 3, d: "Hipotensão com jugulares cheias e pulmão limpo aponta para o lado direito do coração.", e: "A tríade hipotensão, turgência jugular e ausculta pulmonar limpa sugere infarto de ventrículo direito. A conduta é expansão volêmica e evitar nitrato e diurético, que reduzem a pré-carga e agravam o quadro." },
+    ],
+  },
+  {
+    id: "asma",
+    tema: "resp",
+    titulo: "Crise asmática grave",
+    vinheta: "Rapaz, 22 anos, dispneia intensa há duas horas. Fala em palavras isoladas, usa musculatura acessória, SatO2 de 88% em ar ambiente.",
+    vidas: 3,
+    passos: [
+      { q: "Qual desses achados indica maior gravidade?", o: ["Sibilos difusos e intensos", "Incapacidade de completar frases", "Tosse seca persistente", "Frequência respiratória de 22 irpm"], c: 1, dano: 1, d: "A quantidade de palavras que o paciente consegue dizer por respiração é um marcador clínico direto.", e: "Falar apenas palavras isoladas indica crise grave. O volume dos sibilos não mede gravidade: crises muito graves podem cursar com tórax silencioso por fluxo aéreo insuficiente." },
+      { q: "Qual a conduta inicial imediata?", o: ["Corticoide oral e reavaliação em uma hora", "Oxigênio suplementar com alvo de SatO2 de 93 a 95% e beta-2 agonista inalatório", "Antibiótico de amplo espectro", "Intubação orotraqueal imediata"], c: 1, dano: 2, d: "Duas coisas ao mesmo tempo: corrigir a hipoxemia e reverter o broncoespasmo.", e: "A conduta inicial associa oxigenoterapia com alvo de saturação entre 93 e 95% e beta-2 agonista de curta ação inalatório, repetido nas primeiras horas. A intubação é reservada à falência respiratória." },
+      { q: "Na crise grave, qual associação inalatória é recomendada?", o: ["Salbutamol isolado", "Salbutamol associado a brometo de ipratrópio", "Adrenalina inalatória", "Solução salina hipertônica"], c: 1, dano: 1, d: "Um beta-2 agonista somado a um anticolinérgico.", e: "Na crise moderada a grave, associar ipratrópio ao beta-2 agonista de curta ação melhora a função pulmonar e reduz internações em comparação ao beta-2 isolado." },
+      { q: "Quando administrar corticoide sistêmico?", o: ["Apenas se não houver melhora em 24 horas", "Na primeira hora, em toda crise moderada a grave", "Somente por via inalatória na emergência", "Apenas em pacientes com infecção associada"], c: 1, dano: 2, d: "Quanto antes, melhor: o efeito anti-inflamatório demora horas para aparecer.", e: "O corticoide sistêmico deve ser administrado na primeira hora de toda crise moderada a grave. Como o início de ação leva de 4 a 6 horas, o atraso prolonga a crise e aumenta o risco de recaída." },
+      { q: "A ausculta, antes cheia de sibilos, torna-se silenciosa. O que isso significa?", o: ["Melhora do broncoespasmo", "Sinal de gravidade por fluxo aéreo insuficiente", "Erro de técnica na ausculta", "Desenvolvimento de pneumotórax em todos os casos"], c: 1, dano: 3, d: "Para haver sibilo é preciso ar se movendo.", e: "O tórax silencioso indica obstrução tão grave que o fluxo aéreo não é suficiente para gerar ruído. É sinal de risco iminente de falência respiratória e exige preparo para suporte ventilatório." },
+      { q: "A gasometria mostra PaCO2 normal em paciente taquipneico e exausto. Como interpretar?", o: ["Quadro compensado, pode receber alta", "Sinal de fadiga muscular e falência respiratória iminente", "Erro laboratorial", "Indica crise leve"], c: 1, dano: 3, d: "Um paciente hiperventilando deveria estar eliminando CO2 em excesso.", e: "Na crise asmática o esperado é hipocapnia pela hiperventilação. PaCO2 normal ou elevada em paciente exausto indica que a musculatura não sustenta mais a ventilação: é sinal de falência respiratória iminente." },
+    ],
+  },
+];

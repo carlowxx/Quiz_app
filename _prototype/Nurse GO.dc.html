@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#071B2E;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+a{color:#1B6FD1}a:hover{color:#05A67A}
+@keyframes ngUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes ngPop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes ngRing{0%,100%{box-shadow:0 6px 0 #04835F,0 0 0 0 rgba(5,166,122,.45)}50%{box-shadow:0 6px 0 #04835F,0 0 0 14px rgba(5,166,122,0)}}
+@keyframes ngFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ngConf{0%{transform:translateY(-20px) rotate(0);opacity:0}12%{opacity:1}100%{transform:translateY(320px) rotate(540deg);opacity:0}}
+@keyframes ngBar{from{width:0}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#071B2E;display:flex;justify-content:center;font-family:'Public Sans',system-ui,sans-serif">
+<div style="width:100%;max-width:430px;min-height:100vh;background:#F5F8F9;display:flex;flex-direction:column;position:relative;overflow:hidden">
+
+<sc-if value="{{ telaBoas }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:36px 26px;background:linear-gradient(170deg,#0A2540,#124E77 65%,#05A67A 165%);color:#fff">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:12px;background:#05A67A;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(5,166,122,.22);font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px">N</div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.4px">Nurse<span style="color:#7BE3C0">GO</span></div>
+  </div>
+  <div style="margin-top:26px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:33px;line-height:1.1;letter-spacing:-1px;text-wrap:pretty">Fisiologia e anatomia, um passo por dia.</div>
+  <div style="margin-top:12px;font-size:15px;line-height:1.55;color:rgba(255,255,255,.75);max-width:320px">Trilha de lições curtas sobre os sistemas cardiovascular e respiratório. Antes de começar, um teste rápido define de onde você parte.</div>
+
+  <div style="margin-top:28px">
+    <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.55)">Como quer ser chamado</div>
+    <input value="{{ nomeInput }}" onChange="{{ setNome }}" placeholder="Seu nome" style="margin-top:9px;width:100%;padding:15px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);color:#fff;font-size:16px;font-weight:600;outline:none">
+  </div>
+
+  <button onClick="{{ comecarNivel }}" style="margin-top:18px;width:100%;padding:17px;border:none;border-radius:18px;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16.5px;box-shadow:0 10px 26px -12px rgba(0,0,0,.8)">Começar</button>
+  <button onClick="{{ pularNivel }}" style="margin-top:12px;width:100%;background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px">Ir direto para a trilha, sem teste</button>
+  <div style="margin-top:24px;font-size:12px;color:rgba(255,255,255,.45);line-height:1.5">Tour rápido do app, depois 6 questões de nivelamento · cerca de 3 minutos</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaMapa }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column">
+  <div style="position:sticky;top:0;z-index:5;background:#0A2540;color:#fff;padding:13px 18px;display:flex;align-items:center;gap:15px">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="width:16px;height:16px;background:#7BE3C0;-webkit-mask:url(icons/sparkles.svg) center/contain no-repeat;mask:url(icons/sparkles.svg) center/contain no-repeat"></span>
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px">{{ xpTxt }}</span>
+      <span style="font-size:11.5px;color:rgba(255,255,255,.6)">XP</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="width:16px;height:16px;background:#F2994A;-webkit-mask:url(icons/flame.svg) center/contain no-repeat;mask:url(icons/flame.svg) center/contain no-repeat"></span>
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:#F2994A">{{ streakTxt }}</span>
+    </div>
+    <button onClick="{{ verEnergia }}" style="display:flex;align-items:center;gap:5px;border:none;background:none;padding:0;color:#fff">
+      <span style="width:16px;height:16px;background:#F2C24A;-webkit-mask:url(icons/zap.svg) center/contain no-repeat;mask:url(icons/zap.svg) center/contain no-repeat"></span>
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:#F2C24A">{{ energiaTxt }}</span>
+    </button>
+    <div style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#0A2540;background:#7BE3C0;padding:5px 10px;border-radius:99px">{{ nivelTxt }}</div>
+  </div>
+  <sc-if value="{{ mostrarBoost }}" hint-placeholder-val="{{ false }}">
+    <div style="background:linear-gradient(90deg,#F2994A,#F2C24A);color:#3A1D00;padding:7px 18px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700">
+      <span style="width:14px;height:14px;background:currentColor;-webkit-mask:url(icons/sparkles.svg) center/contain no-repeat;mask:url(icons/sparkles.svg) center/contain no-repeat"></span>
+      {{ boostTxt }}
+    </div>
+  </sc-if>
+
+  <div style="padding:16px 18px 0;display:flex;gap:12px;align-items:stretch">
+    <div style="flex:none;width:86px;border-radius:18px;background:repeating-linear-gradient(135deg,#E4EDF1 0 7px,#F2F7F9 7px 14px);border:1px dashed #BFD0D8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-align:center;animation:ngFloat 5s ease-in-out infinite">
+      <div style="width:30px;height:30px;border-radius:50%;background:#CFDDE4"></div>
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:9px;line-height:1.25;color:#5A7383">mascote<br>86×110</div>
+    </div>
+    <div style="flex:1;min-width:0;background:#fff;border:1px solid #DCE6EA;border-radius:18px;padding:14px 16px;box-shadow:0 6px 16px -12px rgba(10,37,64,.5)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:7px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;color:#0A2540"><span style="width:16px;height:16px;background:#1B6FD1;-webkit-mask:url(icons/target.svg) center/contain no-repeat;mask:url(icons/target.svg) center/contain no-repeat"></span>Meta da semana</div>
+        <div style="font-size:12px;color:#5A7383;font-weight:600">{{ metaTxt }}</div>
+      </div>
+      <div style="height:9px;border-radius:99px;background:#E7EEF1;margin-top:9px;overflow:hidden"><div style="height:100%;border-radius:99px;background:linear-gradient(90deg,#1B6FD1,#05A67A);transition:width .4s;width:{{ metaPct }}"></div></div>
+      <div style="margin-top:8px;font-size:12px;color:#5A7383;line-height:1.45">{{ metaSub }}</div>
+    </div>
+  </div>
+
+  <div style="flex:1;padding:0 0 100px">
+    <sc-for list="{{ trilha }}" as="u" hint-placeholder-count="2">
+      <div>
+        <div style="position:relative;margin:20px 16px 2px;background:linear-gradient(135deg,{{ u.cor }},{{ u.cor2 }});border-radius:20px;padding:16px 18px;color:#fff;display:flex;align-items:center;gap:12px;box-shadow:0 10px 22px -12px {{ u.cor }};overflow:hidden">
+          <div style="position:absolute;right:-26px;top:-34px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.10)"></div>
+          <div style="position:absolute;right:24px;bottom:-46px;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+          <div style="position:relative;flex:none;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center">
+            <span style="width:23px;height:23px;background:#fff;-webkit-mask:url({{ u.icone }}) center/contain no-repeat;mask:url({{ u.icone }}) center/contain no-repeat"></span>
+          </div>
+          <div style="flex:1;position:relative">
+            <div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.75">{{ u.tag }}</div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.3px;margin-top:2px">{{ u.nome }}</div>
+          </div>
+          <div style="position:relative;flex:none;font-size:12.5px;font-weight:800;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);padding:7px 12px;border-radius:99px;font-family:'Bricolage Grotesque',sans-serif">{{ u.progresso }}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:14px 0 10px;margin:0 10px;border-radius:24px;background:{{ u.bgMapa }}">
+          <sc-for list="{{ u.nos }}" as="n" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;align-items:center;width:100%">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:7px;padding:7px 0">
+                <sc-for list="{{ n.dots }}" as="d" hint-placeholder-count="3">
+                  <div style="width:7px;height:7px;border-radius:50%;background:{{ d.cor }};transform:translateX({{ d.dx }})"></div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:7px;transform:translateX({{ n.dx }});width:176px">
+                <button onClick="{{ n.click }}" disabled="{{ n.locked }}" style="position:relative;width:{{ n.size }};height:{{ n.size }};border-radius:{{ n.raio }};border:none;background:{{ n.bg }};color:{{ n.fg }};box-shadow:{{ n.sombra }};display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:{{ n.iconSize }};animation:{{ n.anim }};transition:transform .12s;overflow:hidden" style-active="transform:translateY(3px)">
+                  <span style="position:absolute;top:5px;left:8px;right:8px;height:38%;border-radius:99px;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));pointer-events:none"></span>
+                  <sc-if value="{{ n.temIcone }}" hint-placeholder-val="{{ true }}">
+                    <span style="position:relative;width:{{ n.iconPx }};height:{{ n.iconPx }};background:currentColor;-webkit-mask:url({{ n.icone }}) center/contain no-repeat;mask:url({{ n.icone }}) center/contain no-repeat"></span>
+                  </sc-if>
+                  <sc-if value="{{ n.temNumero }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:relative">{{ n.numero }}</span>
+                  </sc-if>
+                </button>
+                <div style="font-size:11.5px;font-weight:600;color:{{ n.labelCor }};text-align:center;line-height:1.3;max-width:170px;text-wrap:pretty">{{ n.rotulo }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #DCE6EA;display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 10px 14px;z-index:6">
+    <button onClick="{{ irMapa }}" style="border:none;background:#EAF7F2;border-radius:14px;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:#05A67A"><span style="width:21px;height:21px;background:currentColor;-webkit-mask:url(icons/map.svg) center/contain no-repeat;mask:url(icons/map.svg) center/contain no-repeat"></span><span style="font-size:11px;font-weight:700;color:#04724F">Trilha</span></button>
+    <button onClick="{{ irRevisao }}" style="border:none;background:none;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:#5A7383"><span style="width:21px;height:21px;background:currentColor;-webkit-mask:url(icons/rotate-ccw.svg) center/contain no-repeat;mask:url(icons/rotate-ccw.svg) center/contain no-repeat"></span><span style="font-size:11px;font-weight:700">Revisão</span></button>
+    <button onClick="{{ irPerfil }}" style="border:none;background:none;padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:#5A7383"><span style="width:21px;height:21px;background:currentColor;-webkit-mask:url(icons/user-round.svg) center/contain no-repeat;mask:url(icons/user-round.svg) center/contain no-repeat"></span><span style="font-size:11px;font-weight:700">Perfil</span></button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaRoleta }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:linear-gradient(175deg,#0A2540,#0E3A5E 70%,#0A2540)">
+  <div style="padding:18px 20px;display:flex;align-items:center;gap:12px">
+    <button onClick="{{ irMapa }}" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center"><span style="width:18px;height:18px;background:currentColor;-webkit-mask:url(icons/chevron-left.svg) center/contain no-repeat;mask:url(icons/chevron-left.svg) center/contain no-repeat"></span></button>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:#fff">Roleta da trilha</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px 34px">
+    <div style="position:relative;width:266px;height:266px;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;top:-8px;left:50%;margin-left:-11px;width:22px;height:26px;background:#fff;clip-path:polygon(50% 100%,0 0,100% 0);z-index:3;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))"></div>
+      <div style="position:absolute;inset:0;border-radius:50%;border:8px solid #0A2540;box-shadow:0 0 0 4px rgba(255,255,255,.18),0 24px 50px -14px rgba(0,0,0,.7);overflow:hidden;background:conic-gradient(#1B6FD1 0deg 60deg,#C2415A 60deg 120deg,#7BE3C0 120deg 180deg,#F2C24A 180deg 240deg,#0A2540 240deg 300deg,#F2994A 300deg 360deg);transition:transform 4.2s cubic-bezier(.16,.9,.2,1);transform:rotate({{ wheelDeg }})">
+        <sc-for list="{{ segmentos }}" as="s" hint-placeholder-count="6">
+          <div style="position:absolute;top:50%;left:50%;width:0;height:0;transform:rotate({{ s.deg }})">
+            <div style="position:absolute;transform:translate(-50%,-50%) translateY(-86px);width:76px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:12px;color:{{ s.fg }}">{{ s.nome }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position:absolute;width:62px;height:62px;border-radius:50%;background:#fff;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)"><div style="width:16px;height:16px;border-radius:50%;background:#05A67A"></div></div>
+    </div>
+    <div style="margin-top:28px;text-align:center;min-height:62px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:23px;color:#fff;letter-spacing:-.5px">{{ roletaTitulo }}</div>
+      <div style="margin-top:6px;font-size:13.5px;color:rgba(255,255,255,.66);line-height:1.45;max-width:290px;margin-left:auto;margin-right:auto">{{ roletaSub }}</div>
+    </div>
+    <button onClick="{{ acaoRoleta }}" disabled="{{ roletaTravada }}" style="margin-top:20px;width:100%;padding:17px;border:none;border-radius:18px;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16.5px;opacity:{{ roletaOpacidade }}">{{ roletaBotao }}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaAvatar }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:18px 20px 26px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ irPerfil }}" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center"><span style="width:17px;height:17px;background:currentColor;-webkit-mask:url(icons/chevron-left.svg) center/contain no-repeat;mask:url(icons/chevron-left.svg) center/contain no-repeat"></span></button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px">Seu avatar</div>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:20px">
+      <div style="position:relative;width:112px;height:112px;border-radius:36px;background:{{ avPreviewBg }};display:flex;align-items:center;justify-content:center;box-shadow:0 16px 30px -16px rgba(0,0,0,.8)">
+        <span style="width:52px;height:52px;background:#fff;-webkit-mask:url({{ avPreviewSrc }}) center/contain no-repeat;mask:url({{ avPreviewSrc }}) center/contain no-repeat"></span>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:20px 20px 30px">
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;color:#0A2540">Cor</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:10px">
+      <sc-for list="{{ avCores }}" as="c" hint-placeholder-count="6">
+        <button onClick="{{ c.click }}" style="aspect-ratio:1;border-radius:16px;background:{{ c.bg }};border:3px solid {{ c.borda }};padding:0"></button>
+      </sc-for>
+    </div>
+
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;color:#0A2540;margin-top:22px">Símbolo</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:10px">
+      <sc-for list="{{ avSimbolos }}" as="i" hint-placeholder-count="6">
+        <button onClick="{{ i.click }}" style="aspect-ratio:1;border-radius:16px;background:{{ i.bg }};border:2px solid {{ i.borda }};display:flex;align-items:center;justify-content:center;padding:0"><span style="width:22px;height:22px;background:{{ i.cor }};-webkit-mask:url({{ i.src }}) center/contain no-repeat;mask:url({{ i.src }}) center/contain no-repeat"></span></button>
+      </sc-for>
+    </div>
+
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;color:#0A2540;margin-top:22px">Ou use uma foto</div>
+    <label style="margin-top:10px;display:flex;align-items:center;gap:12px;background:#fff;border:1px dashed #BFD0D8;border-radius:16px;padding:14px;cursor:pointer;position:relative">
+      <input type="file" accept="image/*" onChange="{{ setFoto }}" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+      <span style="width:38px;height:38px;flex:none;border-radius:13px;background:{{ fotoBg }};display:flex;align-items:center;justify-content:center"><span style="width:19px;height:19px;background:#5A7383;-webkit-mask:url(icons/user-round.svg) center/contain no-repeat;mask:url(icons/user-round.svg) center/contain no-repeat"></span></span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13.5px;color:#0A2540">{{ fotoTitulo }}</div>
+        <div style="font-size:11.5px;color:#5A7383;margin-top:1px">A foto substitui o avatar montado</div>
+      </div>
+    </label>
+    <sc-if value="{{ temFoto }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ removerFoto }}" style="margin-top:10px;width:100%;padding:13px;border-radius:14px;border:1px solid #DCE6EA;background:#fff;color:#C2415A;font-weight:700;font-size:12.5px">Remover foto e usar o avatar</button>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaTutorial }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="padding:16px 20px;display:flex;align-items:center;gap:12px">
+    <div style="display:flex;gap:5px;flex:1">
+      <sc-for list="{{ tutBarras }}" as="b" hint-placeholder-count="6">
+        <div style="flex:1;height:5px;border-radius:99px;background:{{ b.cor }};transition:background .3s"></div>
+      </sc-for>
+    </div>
+    <button onClick="{{ pularTutorial }}" style="flex:none;border:none;background:none;color:#5A7383;font-size:12.5px;font-weight:700">Pular</button>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 24px 24px">
+    <div style="width:150px;height:150px;border-radius:40px;background:{{ tutBg }};display:flex;align-items:center;justify-content:center;animation:ngPop .35s ease both;box-shadow:0 18px 34px -20px {{ tutCor }}">
+      <span style="width:66px;height:66px;background:{{ tutCor }};-webkit-mask:url({{ tutIcone }}) center/contain no-repeat;mask:url({{ tutIcone }}) center/contain no-repeat"></span>
+    </div>
+    <div style="margin-top:26px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:{{ tutCorTexto }}">{{ tutTag }}</div>
+    <div style="margin-top:7px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:29px;line-height:1.12;letter-spacing:-.9px;color:#0A2540;text-wrap:pretty">{{ tutTitulo }}</div>
+    <div style="margin-top:12px;font-size:15px;line-height:1.6;color:#41586A;text-wrap:pretty">{{ tutTexto }}</div>
+  </div>
+
+  <div style="padding:0 20px 26px;display:flex;gap:10px">
+    <button onClick="{{ tutVoltar }}" disabled="{{ tutNoInicio }}" style="flex:none;width:56px;padding:15px 0;border-radius:16px;border:1px solid #DCE6EA;background:#fff;color:#5A7383;display:flex;align-items:center;justify-content:center;opacity:{{ tutVoltarOpacidade }}"><span style="width:16px;height:16px;background:currentColor;-webkit-mask:url(icons/chevron-left.svg) center/contain no-repeat;mask:url(icons/chevron-left.svg) center/contain no-repeat"></span></button>
+    <button onClick="{{ tutAvancar }}" style="flex:1;padding:16px;border-radius:16px;border:none;background:#0A2540;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15.5px;box-shadow:0 5px 0 #061A2E;transition:transform .12s" style-active="transform:translateY(3px);box-shadow:0 2px 0 #061A2E">{{ tutBotao }}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaEnergia }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;background:linear-gradient(175deg,#0A2540,#123A5C 70%,#0A2540);color:#fff">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:52px;height:52px;border-radius:18px;background:rgba(242,153,74,.2);border:1px solid rgba(242,153,74,.45);display:flex;align-items:center;justify-content:center"><span style="width:26px;height:26px;background:#F2994A;-webkit-mask:url(icons/zap.svg) center/contain no-repeat;mask:url(icons/zap.svg) center/contain no-repeat"></span></div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;letter-spacing:-.6px">{{ energiaTitulo }}</div>
+      <div style="font-size:12.5px;color:rgba(255,255,255,.6)">Próxima recarga em {{ recargaTxt }}</div>
+    </div>
+  </div>
+  <div style="margin-top:14px;font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.75)">Cada lição consome 1 energia e cada caso de emergência consome 2. Você recupera 1 a cada {{ energiaMinTxt }} minutos, até {{ energiaMaxTxt }}.</div>
+
+  <div style="margin-top:24px;background:linear-gradient(135deg,#05A67A,#1B6FD1);border-radius:22px;padding:20px;box-shadow:0 14px 30px -16px #05A67A">
+    <div style="display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.8)"><span style="width:14px;height:14px;background:currentColor;-webkit-mask:url(icons/sparkles.svg) center/contain no-repeat;mask:url(icons/sparkles.svg) center/contain no-repeat"></span>Nurse GO Plus</div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-top:6px">Energia ilimitada</div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:rgba(255,255,255,.88)">
+      <div>Estude sem pausa, sem esperar recarga</div>
+      <div>Boost de XP permanente de 2x</div>
+      <div>Casos de emergência liberados no seu ritmo</div>
+    </div>
+    <button onClick="{{ assinar }}" style="margin-top:16px;width:100%;padding:15px;border:none;border-radius:16px;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15.5px;box-shadow:0 5px 0 rgba(0,0,0,.2)">Assinar por R$ 14,90/mês</button>
+    <div style="margin-top:9px;text-align:center;font-size:11px;color:rgba(255,255,255,.7)">Simulação: nenhum pagamento é processado nesta versão.</div>
+  </div>
+
+  <button onClick="{{ irMapa }}" style="margin-top:14px;width:100%;padding:15px;border-radius:16px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:14px">Esperar a recarga</button>
+  <button onClick="{{ irRevisao }}" style="margin-top:10px;width:100%;background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px">Revisar erros enquanto isso (não gasta energia)</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaBau }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:36px 26px;background:linear-gradient(175deg,#0A2540,#124E77 70%,#0A2540);color:#fff;text-align:center">
+  <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.5)">{{ bauTag }}</div>
+  <button onClick="{{ abrirBau }}" disabled="{{ bauAberto }}" style="width:134px;height:134px;border-radius:34px;border:none;background:{{ bauBg }};color:#0A2540;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 0 rgba(0,0,0,.28);animation:ngPop .35s ease both;transition:transform .12s" style-active="transform:translateY(4px)"><span style="width:62px;height:62px;background:currentColor;-webkit-mask:url({{ bauIcone }}) center/contain no-repeat;mask:url({{ bauIcone }}) center/contain no-repeat"></span></button>
+  <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.6px">{{ bauTitulo }}</div>
+  <div style="font-size:14px;line-height:1.55;color:rgba(255,255,255,.72);max-width:290px">{{ bauTexto }}</div>
+  <button onClick="{{ irMapa }}" style="width:100%;padding:16px;border-radius:18px;border:none;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px">Voltar à trilha</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaQuiz }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:14px 18px 16px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ sairQuiz }}" style="width:30px;height:30px;flex:none;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;background:currentColor;-webkit-mask:url(icons/x.svg) center/contain no-repeat;mask:url(icons/x.svg) center/contain no-repeat"></span></button>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ tituloQuiz }}</div>
+        <div style="height:6px;border-radius:99px;background:rgba(255,255,255,.16);margin-top:6px;overflow:hidden"><div style="height:100%;background:#05A67A;border-radius:99px;transition:width .35s;width:{{ progPct }}"></div></div>
+      </div>
+      <div style="text-align:right;flex:none">
+        <div style="font-size:10.5px;color:rgba(255,255,255,.55);font-weight:600">XP</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px">{{ xpRodada }}</div>
+      </div>
+    </div>
+    <sc-if value="{{ temTimer }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:9px;margin-top:12px">
+        <span style="flex:none;width:15px;height:15px;background:{{ corTempo }};-webkit-mask:url(icons/timer.svg) center/contain no-repeat;mask:url(icons/timer.svg) center/contain no-repeat"></span>
+        <div style="flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden"><div style="height:100%;border-radius:99px;transition:width 1s linear;background:{{ corTempo }};width:{{ tempoPct }}"></div></div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:13.5px;color:{{ corTempo }};min-width:32px;text-align:right">{{ tempoTxt }}</div>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ modoMilhao }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:14px 16px 0;background:linear-gradient(135deg,#0A2540,#274B6B);border-radius:20px;padding:15px 16px;color:#fff;box-shadow:0 10px 22px -14px #0A2540">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:16px;height:16px;background:#F2C24A;-webkit-mask:url(icons/trophy.svg) center/contain no-repeat;mask:url(icons/trophy.svg) center/contain no-repeat"></span>
+        <div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.7)">Valendo agora</div>
+        <div style="margin-left:auto;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:17px;color:#F2C24A">{{ premioAtual }} XP</div>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:11px">
+        <sc-for list="{{ escada }}" as="d" hint-placeholder-count="10">
+          <div style="flex:1;height:26px;border-radius:7px;background:{{ d.bg }};border:1px solid {{ d.bd }};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:{{ d.fg }};font-family:'Bricolage Grotesque',sans-serif">{{ d.n }}</div>
+        </sc-for>
+      </div>
+      <div style="margin-top:9px;font-size:11.5px;color:rgba(255,255,255,.65);line-height:1.4">{{ escadaNota }}</div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin:12px 16px 0">
+      <button onClick="{{ usarCartas }}" disabled="{{ cartasTravada }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:15px;border:2px solid #DCE6EA;background:#fff;color:#1B6FD1;opacity:{{ cartasOpacidade }}"><span style="width:19px;height:19px;background:currentColor;-webkit-mask:url(icons/list-checks.svg) center/contain no-repeat;mask:url(icons/list-checks.svg) center/contain no-repeat"></span><span style="font-size:11px;font-weight:700">Cartas</span></button>
+      <button onClick="{{ usarPlateia }}" disabled="{{ plateiaTravada }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:15px;border:2px solid #DCE6EA;background:#fff;color:#05A67A;opacity:{{ plateiaOpacidade }}"><span style="width:19px;height:19px;background:currentColor;-webkit-mask:url(icons/user-round.svg) center/contain no-repeat;mask:url(icons/user-round.svg) center/contain no-repeat"></span><span style="font-size:11px;font-weight:700">Plateia</span></button>
+      <button onClick="{{ pararMilhao }}" disabled="{{ pararTravado }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:15px;border:2px solid #F6DDBF;background:#FFF6EC;color:#B96A16;opacity:{{ pararOpacidade }}"><span style="width:19px;height:19px;background:currentColor;-webkit-mask:url(icons/gift.svg) center/contain no-repeat;mask:url(icons/gift.svg) center/contain no-repeat"></span><span style="font-size:11px;font-weight:700">Parar</span></button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ modoCaso }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:14px 16px 0;background:linear-gradient(135deg,#C2415A,#E8735C);border-radius:20px;padding:16px 18px;color:#fff;box-shadow:0 10px 22px -14px #C2415A">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:16px;height:16px;background:#fff;-webkit-mask:url(icons/heart-pulse.svg) center/contain no-repeat;mask:url(icons/heart-pulse.svg) center/contain no-repeat"></span>
+        <div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.85">Vida do paciente</div>
+        <div style="margin-left:auto;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:14px">{{ vidasTxt }}</div>
+      </div>
+      <div style="height:10px;border-radius:99px;background:rgba(0,0,0,.22);margin-top:9px;overflow:hidden"><div style="height:100%;border-radius:99px;background:#fff;transition:width .5s;width:{{ vidasPct }}"></div></div>
+      <div style="margin-top:11px;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.92);text-wrap:pretty">{{ vinheta }}</div>
+    </div>
+  </sc-if>
+
+  <div style="padding:16px 16px 0">
+    <div style="position:relative;background:#fff;border:1px solid #DCE6EA;border-radius:22px;padding:18px 18px 20px;box-shadow:0 12px 26px -18px rgba(10,37,64,.7);overflow:hidden">
+      <div style="position:absolute;right:-30px;top:-40px;width:120px;height:120px;border-radius:50%;background:{{ chipBg }};opacity:.7"></div>
+      <div style="position:relative;display:flex;gap:7px;align-items:center;margin-bottom:12px">
+        <span style="font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:{{ chipBg }};color:{{ chipFg }}">{{ chipTxt }}</span>
+        <span style="font-size:11.5px;color:#5A7383;font-weight:500">{{ subChip }}</span>
+      </div>
+      <div style="position:relative;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;line-height:1.3;letter-spacing:-.4px;color:#0A2540;text-wrap:pretty">{{ enunciado }}</div>
+    </div>
+  </div>
+
+  <div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ alternativas }}" as="a" hint-placeholder-count="4">
+      <button onClick="{{ a.click }}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:14px 15px;border-radius:16px;border:2px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};box-shadow:0 4px 0 {{ a.sombra }};transition:all .14s" style-active="transform:translateY(3px);box-shadow:0 1px 0 {{ a.sombra }}">
+        <span style="flex:none;width:24px;height:24px;border-radius:8px;background:{{ a.tagBg }};color:{{ a.tagFg }};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;font-family:'Bricolage Grotesque',sans-serif">{{ a.letra }}</span>
+        <span style="flex:1;min-width:0;font-size:14.5px;line-height:1.4;font-weight:500;padding-top:2px">{{ a.txt }}</span>
+        <sc-if value="{{ a.temPct }}" hint-placeholder-val="{{ false }}">
+          <span style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:3px">
+            <span style="font-size:11px;font-weight:800;color:#05A67A;font-family:'Bricolage Grotesque',sans-serif">{{ a.pctTxt }}</span>
+            <span style="display:block;width:44px;height:5px;border-radius:99px;background:#E7EEF1;overflow:hidden"><span style="display:block;height:100%;border-radius:99px;background:#05A67A;width:{{ a.pctTxt }}"></span></span>
+          </span>
+        </sc-if>
+      </button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ mostrarDica }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:14px 20px 0;padding:14px 16px;border-radius:16px;background:#EAF3FC;border:1px solid #C7DEF6;animation:ngUp .3s ease both">
+      <div style="display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1B6FD1"><span style="width:14px;height:14px;background:currentColor;-webkit-mask:url(icons/lightbulb.svg) center/contain no-repeat;mask:url(icons/lightbulb.svg) center/contain no-repeat"></span>Dica do professor</div>
+      <div style="margin-top:6px;font-size:13.5px;line-height:1.5;color:#0A2540">{{ textoDica }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ mostrarFeedback }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:16px 20px 0;padding:16px;border-radius:18px;background:{{ fbBg }};border:1px solid {{ fbBd }};animation:ngUp .28s ease both">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:24px;height:24px;border-radius:50%;background:{{ fbCor }};color:#fff;display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;background:currentColor;-webkit-mask:url({{ fbIcone }}) center/contain no-repeat;mask:url({{ fbIcone }}) center/contain no-repeat"></span></div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15.5px;color:{{ fbCor }}">{{ fbTitulo }}</div>
+        <div style="margin-left:auto;font-weight:700;font-size:14px;color:{{ fbCor }};font-family:'Bricolage Grotesque',sans-serif">{{ fbGanho }}</div>
+      </div>
+      <sc-if value="{{ temExplicacao }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:9px;font-size:13.5px;line-height:1.55;color:#0A2540">{{ explicacao }}</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <div style="margin-top:auto;padding:18px 20px 22px;display:flex;gap:10px">
+    <sc-if value="{{ temDica }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ pedirDica }}" disabled="{{ dicaTravada }}" style="flex:none;display:flex;align-items:center;gap:7px;padding:15px 16px;border-radius:16px;border:2px solid #C7DEF6;background:#fff;color:#1B6FD1;font-weight:700;font-size:13.5px;opacity:{{ dicaOpacidade }};box-shadow:0 5px 0 #DCE9F7;transition:transform .12s" style-active="transform:translateY(3px);box-shadow:0 2px 0 #DCE9F7"><span style="width:16px;height:16px;background:currentColor;-webkit-mask:url(icons/lightbulb.svg) center/contain no-repeat;mask:url(icons/lightbulb.svg) center/contain no-repeat"></span>{{ dicasRestantes }}</button>
+    </sc-if>
+    <button onClick="{{ avancar }}" disabled="{{ avancarTravado }}" style="flex:1;padding:15px;border-radius:16px;border:none;background:{{ avancarBg }};color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15.5px;opacity:{{ avancarOpacidade }};box-shadow:0 5px 0 {{ avancarSombra }};transition:transform .12s" style-active="transform:translateY(3px);box-shadow:0 2px 0 {{ avancarSombra }}">{{ avancarTxt }}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaFim }}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;padding:34px 24px;background:{{ fimBg }};color:#fff;overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none">
+    <sc-for list="{{ confete }}" as="c" hint-placeholder-count="0">
+      <div style="position:absolute;top:0;left:{{ c.left }};width:8px;height:12px;border-radius:2px;background:{{ c.cor }};animation:ngConf {{ c.dur }} ease-in {{ c.delay }} both"></div>
+    </sc-for>
+  </div>
+  <div style="position:relative;display:flex;align-items:flex-end;gap:14px">
+    <div style="flex:none;width:78px;height:96px;border-radius:16px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.13) 0 7px,rgba(255,255,255,.06) 7px 14px);border:1px dashed rgba(255,255,255,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;animation:ngFloat 5s ease-in-out infinite">
+      <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22)"></div>
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:8px;line-height:1.25;color:rgba(255,255,255,.72)">{{ mascoteLabel }}</div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700">{{ fimTag }}</div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:40px;letter-spacing:-1.4px;margin-top:6px;animation:ngPop .4s ease both">{{ fimTitulo }}</div>
+    </div>
+  </div>
+  <div style="position:relative;font-size:15px;color:rgba(255,255,255,.78);line-height:1.55;margin-top:12px;max-width:320px;text-wrap:pretty">{{ fimTexto }}</div>
+  <div style="position:relative;height:8px;border-radius:99px;background:rgba(255,255,255,.16);margin-top:16px;overflow:hidden"><div style="height:100%;border-radius:99px;background:linear-gradient(90deg,#7BE3C0,#F2C24A);animation:ngBar .9s cubic-bezier(.2,.8,.2,1) both;width:{{ fimBarra }}"></div></div>
+
+  <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
+    <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px">
+      <div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Acertos</div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin-top:3px">{{ acertosTxt }}</div>
+    </div>
+    <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px">
+      <div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">XP ganho</div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin-top:3px">{{ xpRodada }}</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ temNovasConquistas }}" hint-placeholder-val="{{ false }}">
+    <div style="position:relative;margin-top:12px;display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ novasConquistas }}" as="c" hint-placeholder-count="1">
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(242,153,74,.16);border:1px solid rgba(242,153,74,.4);border-radius:16px;padding:12px 14px;animation:ngUp .35s ease both">
+          <div style="width:34px;height:34px;flex:none;border-radius:11px;background:#F2994A;color:#0A2540;display:flex;align-items:center;justify-content:center"><span style="width:19px;height:19px;background:currentColor;-webkit-mask:url({{ c.icone }}) center/contain no-repeat;mask:url({{ c.icone }}) center/contain no-repeat"></span></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#F2994A">Conquista desbloqueada</div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14.5px;margin-top:1px">{{ c.nome }}</div>
+          </div>
+          <div style="font-weight:700;font-size:13px;color:#F2994A">+{{ c.xp }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <button onClick="{{ irMapa }}" style="position:relative;margin-top:22px;padding:17px;border-radius:18px;border:none;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px;box-shadow:0 6px 0 rgba(0,0,0,.22)">Voltar à trilha</button>
+  <button onClick="{{ irRevisao }}" style="position:relative;margin-top:14px;padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:13.5px">Revisar os erros</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaPerfil }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:18px 20px 22px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ irMapa }}" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center"><span style="width:17px;height:17px;background:currentColor;-webkit-mask:url(icons/chevron-left.svg) center/contain no-repeat;mask:url(icons/chevron-left.svg) center/contain no-repeat"></span></button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px">Perfil</div>
+      <button onClick="{{ trocarNome }}" style="margin-left:auto;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:11.5px;font-weight:600;padding:7px 12px;border-radius:99px">Trocar nome</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
+      <button onClick="{{ irAvatar }}" style="position:relative;flex:none;width:78px;height:78px;border-radius:26px;overflow:hidden;cursor:pointer;background:{{ avatarBg }};border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px -12px rgba(0,0,0,.9)">
+        <sc-if value="{{ semFoto }}" hint-placeholder-val="{{ true }}">
+          <span style="width:36px;height:36px;background:#fff;-webkit-mask:url({{ avPreviewSrc }}) center/contain no-repeat;mask:url({{ avPreviewSrc }}) center/contain no-repeat"></span>
+        </sc-if>
+        <span style="position:absolute;bottom:0;left:0;right:0;padding:3px 0;background:rgba(10,37,64,.7);font-size:9px;font-weight:700;color:#fff">editar</span>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ nomeJogador }}</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.62);margin-top:3px">{{ subtituloPerfil }}</div>
+        <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:99px;background:{{ planoBg }};color:{{ planoFg }}">{{ planoTxt }}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px">
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 12px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">XP</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;margin-top:3px">{{ xpTxt }}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 12px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Ofensiva</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;margin-top:3px">{{ streakTxt }}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 12px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Lições</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;margin-top:3px">{{ licoesTxt }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:18px 20px 34px">
+    <div style="background:#fff;border:1px solid #DCE6EA;border-radius:18px;padding:16px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;color:#0A2540"><span style="width:16px;height:16px;background:#1B6FD1;-webkit-mask:url(icons/book-open.svg) center/contain no-repeat;mask:url(icons/book-open.svg) center/contain no-repeat"></span>Formação</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">
+        <sc-for list="{{ situacoes }}" as="x" hint-placeholder-count="4">
+          <button onClick="{{ x.click }}" style="padding:8px 13px;border-radius:99px;border:1.5px solid {{ x.borda }};background:{{ x.bg }};color:{{ x.cor }};font-size:12.5px;font-weight:700">{{ x.nome }}</button>
+        </sc-for>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:9px">
+        <div>
+          <div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#5A7383">Instituição</div>
+          <input value="{{ instituicao }}" onChange="{{ setInstituicao }}" placeholder="Onde você estuda ou trabalha" style="margin-top:5px;width:100%;padding:12px 13px;border-radius:13px;border:1px solid #DCE6EA;background:#F8FBFC;color:#0A2540;font-size:14px;font-weight:600;outline:none">
+        </div>
+        <div>
+          <div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#5A7383">Curso e período</div>
+          <input value="{{ curso }}" onChange="{{ setCurso }}" placeholder="Ex.: Enfermagem, 4º período" style="margin-top:5px;width:100%;padding:12px 13px;border-radius:13px;border:1px solid #DCE6EA;background:#F8FBFC;color:#0A2540;font-size:14px;font-weight:600;outline:none">
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:#0A2540;margin-bottom:10px">Conquistas <span style="color:#5A7383;font-weight:600;font-size:13px">{{ conquistasTxt }}</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <sc-for list="{{ conquistas }}" as="c" hint-placeholder-count="6">
+        <div style="display:flex;align-items:center;gap:10px;background:{{ c.bg }};border:1px solid {{ c.bd }};border-radius:16px;padding:12px 13px">
+          <div style="width:34px;height:34px;flex:none;border-radius:12px;background:{{ c.iconBg }};color:{{ c.iconFg }};display:flex;align-items:center;justify-content:center"><span style="width:18px;height:18px;background:currentColor;-webkit-mask:url({{ c.icone }}) center/contain no-repeat;mask:url({{ c.icone }}) center/contain no-repeat"></span></div>
+          <div style="min-width:0">
+            <div style="font-weight:700;font-size:12.5px;color:{{ c.txtCor }};line-height:1.25">{{ c.nome }}</div>
+            <div style="font-size:10.5px;color:#8FA3AE;margin-top:2px;line-height:1.3">{{ c.desc }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:#0A2540;margin:24px 0 10px">Melhores rodadas</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ ranking }}" as="r" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:13px;background:{{ r.bg }};border:1px solid {{ r.bd }};border-radius:16px;padding:13px 15px">
+          <div style="width:28px;height:28px;flex:none;border-radius:9px;background:{{ r.medBg }};color:{{ r.medFg }};display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:13px">{{ r.pos }}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:14px;color:#0A2540;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.nome }}</div>
+            <div style="font-size:11.5px;color:#5A7383;margin-top:1px">{{ r.detalhe }}</div>
+          </div>
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:#05A67A">{{ r.pontos }}</div>
+        </div>
+      </sc-for>
+      <sc-if value="{{ rankingVazio }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:32px 20px;color:#5A7383;font-size:13.5px;line-height:1.55">Nenhuma rodada concluída ainda.</div>
+      </sc-if>
+    </div>
+
+    <button onClick="{{ verTutorial }}" style="margin-top:22px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:16px;border:1px solid #DCE6EA;background:#fff;color:#1B6FD1;font-weight:700;font-size:13.5px"><span style="width:16px;height:16px;background:currentColor;-webkit-mask:url(icons/book-open.svg) center/contain no-repeat;mask:url(icons/book-open.svg) center/contain no-repeat"></span>Rever o tutorial</button>
+    <button onClick="{{ reiniciar }}" style="margin-top:10px;width:100%;padding:14px;border-radius:16px;border:1px solid #DCE6EA;background:#fff;color:#C2415A;font-weight:700;font-size:13px">Refazer o teste de nivelamento</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaRevisao }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:18px 20px 22px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ irMapa }}" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center"><span style="width:17px;height:17px;background:currentColor;-webkit-mask:url(icons/chevron-left.svg) center/contain no-repeat;mask:url(icons/chevron-left.svg) center/contain no-repeat"></span></button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px">Revisão dos erros</div>
+      <button onClick="{{ limparErros }}" style="margin-left:auto;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:11.5px;font-weight:600;padding:7px 12px;border-radius:99px">Limpar</button>
+    </div>
+    <div style="margin-top:10px;font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.5">{{ revisaoResumo }}</div>
+  </div>
+  <div style="padding:16px 20px 30px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ erros }}" as="e" hint-placeholder-count="2">
+      <div style="background:#fff;border:1px solid #DCE6EA;border-radius:18px;padding:15px 16px">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:{{ e.cor }}">{{ e.tema }}</div>
+        <div style="margin-top:7px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;line-height:1.35;color:#0A2540;text-wrap:pretty">{{ e.q }}</div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:flex-start">
+          <span style="flex:none;margin-top:1px;font-size:10.5px;font-weight:700;color:#C2415A">SUA</span>
+          <span style="font-size:13px;line-height:1.45;color:#5A7383;text-decoration:line-through">{{ e.sua }}</span>
+        </div>
+        <div style="margin-top:5px;display:flex;gap:8px;align-items:flex-start">
+          <span style="flex:none;margin-top:1px;font-size:10.5px;font-weight:700;color:#05A67A">OK</span>
+          <span style="font-size:13px;line-height:1.45;color:#0A2540;font-weight:600">{{ e.certa }}</span>
+        </div>
+        <div style="margin-top:11px;padding-top:11px;border-top:1px dashed #DCE6EA;font-size:12.5px;line-height:1.55;color:#5A7383">{{ e.exp }}</div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ revisaoVazia }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:40px 20px;color:#5A7383;font-size:13.5px;line-height:1.55">Sem erros guardados.<br>Eles aparecem aqui assim que surgirem.</div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:430,&quot;height&quot;:900},&quot;tempoQuestao&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:30,&quot;min&quot;:10,&quot;max&quot;:90,&quot;unit&quot;:&quot;s&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ritmo&quot;},&quot;metaSemanal&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:1,&quot;max&quot;:20,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ritmo&quot;}}">
+const CHAVE = 'nursego_v1';
+const NIVEIS = {1:'Base', 2:'Intermediário', 3:'Avançado'};
+const SEGS = [
+  {tipo:'rodada', k:'cardio', nome:'Cardio', fg:'#fff'},
+  {tipo:'emergencia', k:'emerg', nome:'Emergência', fg:'#fff'},
+  {tipo:'rodada', k:'resp', nome:'Respiratório', fg:'#0A2540'},
+  {tipo:'bau', k:'misto', nome:'Baú', fg:'#fff'},
+  {tipo:'rodada', k:'misto', nome:'Misto', fg:'#fff'},
+  {tipo:'bonus', k:'misto', nome:'Bônus x2', fg:'#fff'}
+];
+const UNIDADES = [
+  {k:'cardio', tag:'Unidade 1', nome:'Sistema cardiovascular', cor:'#1B6FD1',
+   licoes:['Anatomia do coração','Ritmo e eletrocardiograma','Ciclo cardíaco e bulhas','Hemodinâmica','Eletrofisiologia e pressão']},
+  {k:'resp', tag:'Unidade 2', nome:'Sistema respiratório', cor:'#05A67A',
+   licoes:['Vias aéreas e alvéolos','Mecânica e controle','Pressões e pleura','Volumes e quimiorreceptores','Trocas gasosas']},
+];
+const TUTORIAL = [
+  {icone:'icons/map.svg', cor:'#1B6FD1', tag:'A trilha',
+   titulo:'Um passo de cada vez',
+   texto:'A trilha é o coração do app. Cada casa é uma atividade curta: lições de 4 questões, checkpoints de revisão, roletas e o teste geral no fim. Você só abre a próxima casa depois de passar na anterior.'},
+  {icone:'icons/lightbulb.svg', cor:'#1B6FD1', tag:'Dicas',
+   titulo:'Você tem 2 dicas por lição',
+   texto:'Travou numa questão? A dica do professor aponta o caminho sem entregar a resposta. Cada dica custa 15 XP do que você acumulou na rodada, então guarde para quando realmente precisar. Nas roletas e checkpoints você tem só 1.'},
+  {icone:'icons/zap.svg', cor:'#F2994A', tag:'Energia',
+   titulo:'Cada atividade consome energia',
+   texto:'Você começa com 5 de energia. Lições e checkpoints custam 1, casos de emergência e o teste geral custam 2. A energia volta sozinha: 1 a cada 20 minutos. Baús e o plano Plus devolvem energia na hora.'},
+  {icone:'icons/life-buoy.svg', cor:'#C2415A', tag:'Roleta',
+   titulo:'A roleta decide o que vem',
+   texto:'Em algumas casas você gira a roleta em vez de fazer uma lição. Pode cair uma rodada relâmpago de um sistema, um bônus com XP em dobro, um baú de recompensa ou uma emergência.'},
+  {icone:'icons/heart-pulse.svg', cor:'#C2415A', tag:'Emergência',
+   titulo:'Vida ou morte',
+   texto:'Nos casos de emergência você conduz um paciente real do plantão, passo a passo. Cada conduta errada tira vida dele, e o dano varia com a gravidade do erro. Se a vida chegar a zero, o paciente evolui a óbito e a rodada não vale XP.'},
+  {icone:'icons/sparkles.svg', cor:'#05A67A', tag:'Progresso',
+   titulo:'XP, ofensiva e conquistas',
+   texto:'Cada acerto rende XP, e responder rápido rende mais. Jogar todo dia mantém a ofensiva viva. Ao longo do caminho você desbloqueia conquistas, e todo erro vai para a Revisão com a explicação completa.'}
+];
+const AV_CORES = [
+  {id:'azul', bg:'linear-gradient(135deg,#1B6FD1,#3FA0E8)', solid:'#1B6FD1'},
+  {id:'verde', bg:'linear-gradient(135deg,#05A67A,#2FC79A)', solid:'#05A67A'},
+  {id:'vermelho', bg:'linear-gradient(135deg,#C2415A,#E8735C)', solid:'#C2415A'},
+  {id:'ambar', bg:'linear-gradient(135deg,#E08A1E,#F2C24A)', solid:'#E08A1E'},
+  {id:'noite', bg:'linear-gradient(135deg,#0A2540,#274B6B)', solid:'#0A2540'},
+  {id:'roxo', bg:'linear-gradient(135deg,#6B4FCF,#9A7BEA)', solid:'#6B4FCF'}
+];
+const AV_SIMBOLOS = [
+  {id:'coracao', src:'icons/heart-pulse.svg'},
+  {id:'pulmao', src:'icons/wind.svg'},
+  {id:'raio', src:'icons/zap.svg'},
+  {id:'estrela', src:'icons/star.svg'},
+  {id:'medalha', src:'icons/award.svg'},
+  {id:'brilho', src:'icons/sparkles.svg'}
+];
+const SITUACOES = ['Estudando','Formado','Concursando','Residência'];
+const PREMIOS = [150,300,600,1000,1600,2500,4000,6000,9000,15000];
+const SEGUROS = [3,6];
+const ENERGIA_MAX = 5;
+const ENERGIA_MIN = 20;
+const CUSTO = {licao:1, check:1, relampago:1, geral:2, caso:2};
+const CONQUISTAS = [
+  {id:'inicio', icone:'icons/book-open.svg', nome:'Primeiro passo', desc:'Concluir a primeira lição', xp:50},
+  {id:'perfeita', icone:'icons/circle-check-big.svg', nome:'Lição perfeita', desc:'Acertar tudo em uma lição', xp:80},
+  {id:'check', icone:'icons/list-checks.svg', nome:'Memória boa', desc:'Passar em um checkpoint', xp:100},
+  {id:'cardio', icone:'icons/heart-pulse.svg', nome:'Coração firme', desc:'Concluir a unidade 1', xp:200},
+  {id:'resp', icone:'icons/wind.svg', nome:'Fôlego longo', desc:'Concluir a unidade 2', xp:200},
+  {id:'ofensiva', icone:'icons/flame.svg', nome:'Três dias seguidos', desc:'Manter ofensiva de 3 dias', xp:120},
+  {id:'relampago', icone:'icons/zap.svg', nome:'Relâmpago', desc:'Vencer uma rodada da roleta', xp:90},
+  {id:'salvador', icone:'icons/award.svg', nome:'Plantão sem perdas', desc:'Salvar um paciente na emergência', xp:250},
+  {id:'geral', icone:'icons/trophy.svg', nome:'Visão geral', desc:'Passar no teste geral', xp:300}
+];
+
+class Component extends DCLogic {
+  state = {
+    tela:'boas', perfil:null, banco:null, nomeInput:'',
+    modo:'licao', fila:[], idx:0, escolha:null, dica:false, dicas:2, bonus:false,
+    xpRodada:0, acertos:0, tempo:30, errosRodada:[], noAtual:null, ultimoGanho:0,
+    girando:false, wheelDeg:0, sorteado:null,
+    fimTag:'', fimTitulo:'', fimTexto:'', novas:[], fimObito:false,
+    casos:null, caso:null, vidas:3, obito:false, tutIdx:0,
+    cartas:1, plateia:1, eliminadas:[], pesquisa:null, parou:false,
+    bauAberto:false, bauValor:0
+  };
+
+  componentDidMount(){
+    import('./banco.js').then(m=>this.setState({banco:m.BANCO})).catch(()=>{});
+    import('./casos.js').then(m=>this.setState({casos:m.CASOS})).catch(()=>{});
+    this.relogio = setInterval(()=>{ if(this.state.perfil) this.forceUpdate(); }, 15000);
+    let p=null;
+    try{ p = JSON.parse(localStorage.getItem(CHAVE)||'null'); }catch(e){}
+    if(p){
+      const hoje=new Date().toISOString().slice(0,10), ontem=new Date(Date.now()-864e5).toISOString().slice(0,10);
+      if(p.ultimo && p.ultimo!==hoje && p.ultimo!==ontem) p.streak=0;
+      this.setState({perfil:p, tela:'mapa', nomeInput:p.nome});
+    }
+  }
+  componentWillUnmount(){ clearInterval(this.tick); clearInterval(this.relogio); }
+
+  energiaAgora(p){
+    if(!p) return ENERGIA_MAX;
+    if(p.premium) return ENERGIA_MAX;
+    const base = typeof p.energia==='number' ? p.energia : ENERGIA_MAX;
+    if(base>=ENERGIA_MAX) return ENERGIA_MAX;
+    const decorrido = Date.now() - (p.energiaTs || Date.now());
+    return Math.min(ENERGIA_MAX, base + Math.floor(decorrido/(ENERGIA_MIN*60000)));
+  }
+  proximaRecarga(p){
+    if(!p || p.premium) return 0;
+    if(this.energiaAgora(p)>=ENERGIA_MAX) return 0;
+    const decorrido = Date.now() - (p.energiaTs || Date.now());
+    return (ENERGIA_MIN*60000) - (decorrido % (ENERGIA_MIN*60000));
+  }
+  gastarEnergia(n){
+    const p={...this.state.perfil};
+    if(p.premium) return true;
+    const atual=this.energiaAgora(p);
+    if(atual < n) return false;
+    p.energia = atual - n;
+    p.energiaTs = Date.now();
+    this.salvar(p);
+    return true;
+  }
+  get boostAtivo(){ const p=this.state.perfil; return !!(p && p.boostAte && p.boostAte>Date.now()); }
+
+  salvar(p){ this.setState({perfil:p}); try{ localStorage.setItem(CHAVE, JSON.stringify(p)); }catch(e){} }
+  novoPerfil(nome, nivel, prog){
+    return {nome:(nome||'').trim()||'Estudante', nivel, prog:prog||0, xp:0, streak:0, ultimo:null,
+            ranking:[], erros:[], licoes:0, conquistas:[], semana:{ini:this.segunda(), n:0},
+            energia:ENERGIA_MAX, energiaTs:Date.now(), premium:false, foto:null, boostAte:0, salvos:0,
+            avCor:'azul', avSimbolo:'coracao', instituicao:'', curso:'', situacao:'Estudando'};
+  }
+  segunda(){ const d=new Date(); const dia=(d.getDay()+6)%7; d.setDate(d.getDate()-dia); return d.toISOString().slice(0,10); }
+  get segTempo(){ return Math.max(10, Math.min(90, this.props.tempoQuestao ?? 30)); }
+  get metaSemanal(){ return Math.max(1, Math.min(20, this.props.metaSemanal ?? 5)); }
+  pool(k){ const b=this.state.banco||[]; return k==='misto' ? b : b.filter(x=>x.t===k); }
+
+  nos(){
+    const lista=[]; let g=0;
+    UNIDADES.forEach((u,ui)=>{
+      u.licoes.forEach((nome,li)=>{
+        lista.push({tipo:'licao', ui, k:u.k, li, i:g++, rotulo:nome, cor:u.cor});
+        if(li===0) lista.push({tipo:'roleta', ui, k:u.k, i:g++, rotulo:'Girar a roleta', cor:'#F2994A'});
+        if(li===1) lista.push({tipo:'check', ui, k:u.k, ate:2, i:g++, rotulo:'O que vimos até aqui', cor:'#0A2540'});
+        if(li===2) lista.push({tipo:'roleta', ui, k:u.k, i:g++, rotulo:'Girar a roleta', cor:'#F2994A'});
+        if(li===3) lista.push({tipo:'check', ui, k:u.k, ate:4, i:g++, rotulo:'O que vimos até aqui', cor:'#0A2540'});
+      });
+      lista.push({tipo:'check', ui, k:u.k, ate:5, i:g++, rotulo:'Revisão da unidade', cor:'#0A2540'});
+      lista.push({tipo:'roleta', ui, k:u.k, i:g++, rotulo:'Girar a roleta', cor:'#F2994A'});
+      lista.push({tipo:'bau', ui, k:u.k, i:g++, rotulo:'Baú de recompensa', cor:'#F2C24A'});
+    });
+    lista.push({tipo:'geral', ui:1, k:'misto', i:g++, rotulo:'Show do Milhão da Saúde', cor:'#0A2540'});
+    return lista;
+  }
+
+  iniciarTimer(){
+    clearInterval(this.tick);
+    this.setState({tempo:this.segTempo});
+    this.tick = setInterval(()=>{
+      this.setState(s=>{
+        if(s.escolha!==null) return null;
+        if(s.tempo<=1){ clearInterval(this.tick); return {tempo:0}; }
+        return {tempo:s.tempo-1};
+      }, ()=>{ if(this.state.tempo===0 && this.state.escolha===null) this.responder(-1); });
+    },1000);
+  }
+
+  comecarNivel(){
+    const b=this.state.banco||[];
+    const pega=(t,n)=>b.filter(x=>x.t===t&&x.n===n).sort(()=>Math.random()-.5).slice(0,1);
+    const fila=[].concat(pega('cardio',1),pega('cardio',2),pega('cardio',3),pega('resp',1),pega('resp',2),pega('resp',3));
+    this.setState({tela:'quiz', modo:'nivel', fila, idx:0, escolha:null, dica:false, xpRodada:0, acertos:0, errosRodada:[]});
+  }
+
+  abrirNo(no){
+    const emb=(fila,modo,dicas)=>this.setState({tela:'quiz', modo, noAtual:no, fila, idx:0, escolha:null, dica:false, dicas, xpRodada:0, acertos:0, errosRodada:[], bonus:false}, ()=>this.iniciarTimer());
+    if(no.tipo==='bau'){ this.setState({tela:'bau', noAtual:no, bauAberto:false, bauValor:0}); return; }
+    const custo = CUSTO[no.tipo] || 1;
+    if(this.energiaAgora(this.state.perfil) < custo){ this.setState({tela:'energia', noAtual:no}); return; }
+    if(no.tipo==='roleta'){ this.setState({tela:'roleta', sorteado:null, noAtual:no}); return; }
+    if(no.tipo==='caso'){
+      if(!this.gastarEnergia(custo)) return;
+      const caso=(this.state.casos||[])[no.ci];
+      this.setState({tela:'quiz', modo:'caso', noAtual:no, caso, fila:caso.passos, idx:0, escolha:null,
+        dica:false, dicas:1, xpRodada:0, acertos:0, errosRodada:[], bonus:false, vidas:caso.vidas, obito:false}, ()=>this.iniciarTimer());
+      return;
+    }
+    if(!this.gastarEnergia(custo)) return;
+    const pool=this.pool(no.k);
+    if(no.tipo==='licao') return emb(pool.slice(no.li*4, no.li*4+4), 'licao', 2);
+    if(no.tipo==='check') return emb(pool.slice(0, no.ate*4).sort(()=>Math.random()-.5).slice(0,6), 'check', 1);
+    if(no.tipo==='geral'){
+      const b=this.state.banco||[];
+      const sortear=(n,q)=>b.filter(x=>x.n===n).sort(()=>Math.random()-.5).slice(0,q);
+      const fila=[].concat(sortear(1,3),sortear(2,4),sortear(3,3));
+      this.setState({tela:'quiz', modo:'milhao', noAtual:no, fila, idx:0, escolha:null, dica:false, dicas:1,
+        xpRodada:0, acertos:0, errosRodada:[], bonus:false, cartas:1, plateia:1, eliminadas:[], pesquisa:null, parou:false}, ()=>this.iniciarTimer());
+      return;
+    }
+  }
+
+  girar(){
+    if(this.state.girando) return;
+    const alvo=Math.floor(Math.random()*6);
+    this.setState(s=>({girando:true, sorteado:null, wheelDeg:s.wheelDeg + 360*5 + (360-(alvo*60+30))}));
+    setTimeout(()=>this.setState({girando:false, sorteado:SEGS[alvo]}), 4300);
+  }
+
+  responder(i){
+    if(this.state.escolha!==null) return;
+    clearInterval(this.tick);
+    const s=this.state, q=s.fila[s.idx], certo=i===q.c;
+    const mult = (s.bonus?2:1) * (this.boostAtivo?2:1);
+    const peso = s.modo==='caso' ? 3 : (q.n||1);
+    if(s.modo==='milhao'){
+      const acumulado = certo ? PREMIOS[s.idx] : 0;
+      this.setState(x=>({escolha:i, ultimoGanho: certo ? PREMIOS[x.idx] : 0,
+        xpRodada: acumulado, acertos:x.acertos+(certo?1:0),
+        errosRodada: certo ? x.errosRodada : x.errosRodada.concat([{q, sua: i>=0 ? q.o[i] : 'Tempo esgotado'}])}));
+      return;
+    }
+    const ganho = s.modo==='nivel' ? 0 : (certo ? Math.round((20*peso + s.tempo*2)*mult) : 0);
+    const dano = (!certo && s.modo==='caso') ? (q.dano||1) : 0;
+    const vidas = Math.max(0, (s.vidas||0) - dano);
+    this.setState(x=>({
+      escolha:i, ultimoGanho:ganho, xpRodada:x.xpRodada+ganho, acertos:x.acertos+(certo?1:0),
+      vidas: x.modo==='caso' ? vidas : x.vidas,
+      obito: x.modo==='caso' && vidas<=0,
+      errosRodada: certo ? x.errosRodada : x.errosRodada.concat([{q, sua: i>=0 ? q.o[i] : 'Tempo esgotado'}])
+    }));
+  }
+
+  premiar(p, ids){
+    const ganhas=[];
+    ids.filter(Boolean).forEach(id=>{
+      if((p.conquistas||[]).includes(id)) return;
+      const c=CONQUISTAS.find(x=>x.id===id);
+      if(!c) return;
+      p.conquistas=(p.conquistas||[]).concat([id]);
+      p.xp=(p.xp||0)+c.xp;
+      ganhas.push(c);
+    });
+    return ganhas;
+  }
+
+  avancar(){
+    const s=this.state;
+    if(s.obito){ this.finalizar(true); return; }
+    if(s.modo==='milhao'){
+      const q=s.fila[s.idx], errou = s.escolha!==q.c;
+      if(errou){ this.finalizar(false); return; }
+      if(s.idx+1 < s.fila.length){
+        this.setState(x=>({idx:x.idx+1, escolha:null, dica:false, eliminadas:[], pesquisa:null}), ()=>this.iniciarTimer());
+      } else this.finalizar(false);
+      return;
+    }
+    if(s.idx+1 < s.fila.length){
+      this.setState(x=>({idx:x.idx+1, escolha:null, dica:false}), ()=>{ if(s.modo!=='nivel') this.iniciarTimer(); });
+      return;
+    }
+    clearInterval(this.tick);
+    const hoje=new Date().toISOString().slice(0,10);
+
+    if(s.modo==='nivel'){
+      const nivel = s.acertos>=5 ? 3 : (s.acertos>=3 ? 2 : 1);
+      const prog = nivel===3 ? 4 : (nivel===2 ? 2 : 0);
+      this.salvar(this.novoPerfil(s.nomeInput, nivel, prog));
+      this.setState({tela:'fim', novas:[], fimTag:'Teste de nivelamento', fimTitulo:NIVEIS[nivel],
+        fimTexto: nivel===1 ? 'Você começa pela primeira lição. A trilha sobe de dificuldade a cada passo.'
+        : (nivel===2 ? 'Boa base. As duas primeiras lições já vêm liberadas.'
+        : 'Domínio alto. Quatro lições liberadas — você parte direto para o conteúdo avançado.')});
+      return;
+    }
+
+    this.finalizar(false);
+  }
+
+  finalizar(obito){
+    const s=this.state;
+    clearInterval(this.tick);
+    const hoje=new Date().toISOString().slice(0,10);
+    const p={...this.state.perfil};
+    const total=s.fila.length;
+    const corte = s.modo==='licao' ? 0.6 : 0.7;
+    const no=s.noAtual;
+    let milhaoXp=0, milhaoTag='', milhaoTexto='';
+    if(s.modo==='milhao'){
+      const q=s.fila[s.idx], errou = !s.parou && s.escolha!==q.c;
+      const acertados = s.parou ? s.idx : (errou ? s.idx : s.idx+1);
+      if(s.parou){
+        milhaoXp = acertados>0 ? PREMIOS[acertados-1] : 0;
+        milhaoTag='Você parou'; milhaoTexto='Parou no degrau '+acertados+' e levou o acumulado. Decisão de quem sabe a hora de sair.';
+      } else if(errou){
+        const seguro = SEGUROS.filter(x=>x<=acertados).pop();
+        milhaoXp = seguro ? PREMIOS[seguro-1] : 0;
+        milhaoTag='Resposta errada';
+        milhaoTexto = seguro ? ('Você errou no degrau '+(acertados+1)+' e caiu para o último ponto garantido, o degrau '+seguro+'.')
+          : ('Você errou antes do primeiro ponto garantido, no degrau '+SEGUROS[0]+', e saiu sem prêmio. Os degraus '+SEGUROS.join(' e ')+' protegem o acumulado.');
+      } else {
+        milhaoXp = PREMIOS[PREMIOS.length-1];
+        milhaoTag='Show do Milhão da Saúde';
+        milhaoTexto='Dez degraus, dez acertos. Você levou o prêmio máximo e fechou a trilha.';
+      }
+    }
+    const passou = s.modo==='caso' ? !obito : (s.modo==='milhao' ? (s.parou || s.acertos>=s.fila.length) : (s.acertos >= Math.ceil(total*corte)));
+
+    const xpFinal = obito ? 0 : (s.modo==='milhao' ? milhaoXp : s.xpRodada);
+    p.xp=(p.xp||0)+xpFinal;
+    p.licoes=(p.licoes||0)+1;
+    if(p.ultimo!==hoje){ p.streak=(p.streak||0)+1; p.ultimo=hoje; }
+    if(!p.semana || p.semana.ini!==this.segunda()) p.semana={ini:this.segunda(), n:0};
+    p.semana={...p.semana, n:p.semana.n+1};
+    if(passou && no && no.i===p.prog) p.prog=no.i+1;
+    if(s.modo==='caso' && passou) p.salvos=(p.salvos||0)+1;
+
+    p.ranking=(p.ranking||[]).concat([{nome:p.nome, pontos:xpFinal, rot:(no&&no.rotulo)||'Rodada', acertos:s.acertos, total, data:hoje}]).sort((a,b)=>b.pontos-a.pontos).slice(0,10);
+    p.erros=s.errosRodada.map(e=>({q:e.q.q, sua:e.sua, certa:e.q.o[e.q.c], exp:e.q.e, t:e.q.t}))
+      .concat((p.erros||[]).filter(e=>!s.errosRodada.some(n=>n.q.q===e.q))).slice(0,30);
+
+    const lista=this.nos();
+    const fimU1=lista.find(n=>n.tipo==='bau'&&n.ui===0), fimU2=lista.find(n=>n.tipo==='bau'&&n.ui===1);
+    const novas=this.premiar(p, [
+      'inicio',
+      s.acertos===total ? 'perfeita' : null,
+      (s.modo==='check' && passou) ? 'check' : null,
+      (s.modo==='relampago' && passou) ? 'relampago' : null,
+      ((s.modo==='geral'||s.modo==='milhao') && passou) ? 'geral' : null,
+      (s.modo==='caso' && passou) ? 'salvador' : null,
+      (p.streak>=3) ? 'ofensiva' : null,
+      (fimU1 && p.prog>fimU1.i) ? 'cardio' : null,
+      (fimU2 && p.prog>fimU2.i) ? 'resp' : null
+    ]);
+
+    this.salvar(p);
+
+    const tags={licao:'Lição concluída', check:'O que vimos até aqui', geral:'Teste geral', relampago:'Rodada relâmpago', caso:'Plantão de emergência', milhao:'Show do Milhão da Saúde'};
+    this.setState({tela:'fim', novas, fimObito:!!obito,
+      fimTag: s.modo==='milhao' ? milhaoTag : (obito ? 'Paciente perdido' : (passou ? (tags[s.modo]||'Rodada concluída') : 'Quase lá')),
+      fimTitulo: obito ? 'Óbito' : '+'+xpFinal+' XP',
+      fimTexto: s.modo==='milhao' ? milhaoTexto : obito
+        ? 'As condutas erradas somaram dano suficiente para o paciente evoluir a óbito. Leia as explicações na revisão e refaça o caso — na emergência a sequência importa tanto quanto o conteúdo.'
+        : passou
+        ? (s.modo==='caso' ? 'Paciente estabilizado. Você conduziu o caso até o fim sem perder o controle da situação.'
+          : s.modo==='check' ? 'Você reteve o conteúdo das lições anteriores. Próximo passo liberado.'
+          : s.modo==='geral' ? 'Você domina os dois sistemas. A trilha completa está concluída.'
+          : 'Próximo passo da trilha liberado. Os erros foram para a revisão.')
+        : ('São necessários '+Math.round(corte*100)+'% de acertos para avançar. Revise os erros e tente de novo.')});
+  }
+
+  renderVals(){
+    const s=this.state, p=s.perfil||{}, q=s.fila[s.idx];
+    const carregado=!!s.banco;
+    const respondeu=s.escolha!==null, certo=q && s.escolha===q.c;
+    const ultimo=s.idx+1>=s.fila.length;
+    const pct=(n,d)=>Math.max(0,Math.min(100,Math.round(100*n/(d||1))))+'%';
+    const prog=p.prog||0;
+
+    const lista=this.nos();
+    const DX=[0,32,52,32,0,-32,-52,-32];
+    const ICONES={check:'icons/list-checks.svg', roleta:'icons/life-buoy.svg', bau:'icons/gift.svg', geral:'icons/trophy.svg', caso:'icons/heart-pulse.svg'};
+    const trilha = UNIDADES.map((u,ui)=>{
+      const nos=lista.filter(n=>n.ui===ui);
+      const feitos=nos.filter(n=>n.i<prog).length;
+      return {
+        tag:u.tag, nome:u.nome, cor:u.cor,
+        cor2: ['#3FA0E8','#2FC79A','#E8735C'][ui],
+        icone: ['icons/heart-pulse.svg','icons/wind.svg','icons/zap.svg'][ui],
+        bgMapa: ['radial-gradient(90% 60% at 50% 0%, #EAF3FC 0%, #F5F8F9 70%)','radial-gradient(90% 60% at 50% 0%, #E9F7F1 0%, #F5F8F9 70%)','radial-gradient(90% 60% at 50% 0%, #FCEDF0 0%, #F5F8F9 70%)'][ui],
+        progresso:feitos+'/'+nos.length,
+        nos: nos.map((n,ni)=>{
+          const feito=n.i<prog, atual=n.i===prog, locked=n.i>prog || !carregado;
+          const dx=DX[n.i%8], dxAnt = ni===0 ? dx : DX[nos[ni-1].i%8];
+          const dots = ni===0 ? [] : [1,2,3].map(k=>({
+            dx: Math.round(dxAnt + (dx-dxAnt)*(k/4))+'px',
+            cor: n.i<=prog ? '#B9CBD4' : '#DDE6EA'
+          }));
+          return {
+            dots,
+            dx:dx+'px',
+            size: n.tipo==='licao' ? '68px' : (n.tipo==='geral' ? '72px' : '60px'),
+            raio: (n.tipo==='bau'||n.tipo==='geral') ? '20px' : '50%',
+            iconSize: n.tipo==='licao' ? '22px' : (n.tipo==='geral' ? '24px' : '20px'),
+            bg: n.i>prog ? '#DAE4E9' : (feito ? '#05A67A' : n.cor),
+            fg: n.i>prog ? '#52697A' : (n.tipo==='bau' && !feito ? '#0A2540' : '#fff'),
+            sombra: n.i>prog ? '0 5px 0 #CDD9DF' : (feito ? '0 6px 0 #04835F' : '0 6px 0 rgba(0,0,0,.24)'),
+            anim: atual ? 'ngRing 2s ease-in-out infinite' : 'none',
+            icone: feito ? 'icons/check.svg' : (ICONES[n.tipo] || ''),
+            temIcone: feito || !!ICONES[n.tipo],
+            temNumero: !feito && !ICONES[n.tipo],
+            numero: String((n.li||0)+1),
+            iconPx: n.tipo==='licao' ? '26px' : (n.tipo==='geral' ? '30px' : '24px'),
+            rotulo:n.rotulo,
+            labelCor: n.i>prog ? '#5A7383' : '#0A2540',
+            locked, click:()=>this.abrirNo(n)
+          };
+        })
+      };
+    });
+    const alternativas = q ? q.o.map((txt,i)=>{
+      let bg='#fff',bd='#DCE6EA',fg='#0A2540',tagBg='#EEF3F5',tagFg='#5A7383',sombra='#DCE6EA';
+      if(respondeu){
+        const ok=i===q.c;
+        if(ok && s.modo!=='nivel'){ bg='#EAF7F2';bd='#05A67A';fg='#04543B';tagBg='#05A67A';tagFg='#fff';sombra='#9FD8C4'; }
+        else if(i===s.escolha){ bg=ok?'#EAF7F2':'#FDEDF0'; bd=ok?'#05A67A':'#C2415A'; fg=ok?'#04543B':'#7A1F31'; tagBg=ok?'#05A67A':'#C2415A'; tagFg='#fff'; sombra=ok?'#9FD8C4':'#EDB6C1'; }
+        else { bd='#E7EEF1'; fg='#8FA3AE'; sombra='#EBF1F3'; }
+      }
+      const eliminada=(s.eliminadas||[]).includes(i);
+      if(eliminada && !respondeu){ bg='#F1F5F6'; bd='#E7EEF1'; fg='#B4C4CC'; tagBg='#E7EEF1'; tagFg='#B4C4CC'; sombra='#EBF1F3'; }
+      const pes=s.pesquisa;
+      return {letra:'ABCD'[i], txt: eliminada && !respondeu ? '—' : txt, bg, bd, fg, tagBg, tagFg, sombra,
+        temPct: !!pes && !respondeu, pctTxt: pes ? (pes[i]+'%') : '0%',
+        click:()=> (eliminada && !respondeu) ? null : this.responder(i)};
+    }) : [];
+
+    const seg=s.sorteado;
+    const erros=(p.erros||[]).map(e=>({q:e.q, sua:e.sua, certa:e.certa, exp:e.exp,
+      tema: e.t==='cardio'?'Cardiovascular':'Respiratório', cor: e.t==='cardio'?'#1B6FD1':'#05A67A'}));
+    const ranking=(p.ranking||[]).map((r,i)=>({
+      pos:i+1, nome:r.nome, pontos:r.pontos,
+      detalhe:r.rot+' · '+r.acertos+'/'+r.total+' · '+r.data.split('-').reverse().slice(0,2).join('/'),
+      bg:i===0?'#EAF7F2':'#fff', bd:i===0?'#C9E9DD':'#DCE6EA',
+      medBg:i===0?'#05A67A':(i===1?'#1B6FD1':'#EEF3F5'), medFg:i<2?'#fff':'#5A7383'}));
+    const temC=(id)=>(p.conquistas||[]).includes(id);
+    const conquistas=CONQUISTAS.map(c=>({
+      icone:c.icone, nome:c.nome, desc:temC(c.id)?('+'+c.xp+' XP'):c.desc,
+      bg: temC(c.id)?'#FFF6EC':'#fff', bd: temC(c.id)?'#F6DDBF':'#DCE6EA',
+      iconBg: temC(c.id)?'#F2994A':'#EEF3F5', iconFg: temC(c.id)?'#fff':'#A9BAC3',
+      txtCor: temC(c.id)?'#0A2540':'#8FA3AE'}));
+    const feitasSemana=(p.semana&&p.semana.ini===this.segunda())?p.semana.n:0;
+
+    const modoTitulo={nivel:'Nivelamento', check:'O que vimos até aqui', geral:'Teste geral de conhecimento', relampago:'Rodada relâmpago', milhao:'Show do Milhão da Saúde'};
+
+    return {
+      telaBoas:s.tela==='boas', telaMapa:s.tela==='mapa', telaQuiz:s.tela==='quiz', telaFim:s.tela==='fim',
+      telaPerfil:s.tela==='perfil', telaRevisao:s.tela==='revisao', telaRoleta:s.tela==='roleta', telaBau:s.tela==='bau',
+      telaEnergia:s.tela==='energia',
+      telaTutorial:s.tela==='tutorial',
+      tutBarras:TUTORIAL.map((_,i)=>({cor: i<=(s.tutIdx||0) ? '#05A67A' : '#DCE6EA'})),
+      tutIcone:(TUTORIAL[s.tutIdx||0]||{}).icone,
+      tutCor:(TUTORIAL[s.tutIdx||0]||{}).cor,
+      tutBg:{'#1B6FD1':'#EAF3FC','#F2994A':'#FFF3E7','#C2415A':'#FDEDF0','#05A67A':'#EAF7F2'}[(TUTORIAL[s.tutIdx||0]||{}).cor]||'#EAF3FC',
+      tutCorTexto:{'#F2994A':'#B96A16','#05A67A':'#04724F'}[(TUTORIAL[s.tutIdx||0]||{}).cor] || (TUTORIAL[s.tutIdx||0]||{}).cor,
+      tutTag:(TUTORIAL[s.tutIdx||0]||{}).tag,
+      tutTitulo:(TUTORIAL[s.tutIdx||0]||{}).titulo,
+      tutTexto:(TUTORIAL[s.tutIdx||0]||{}).texto,
+      tutNoInicio:(s.tutIdx||0)===0,
+      tutVoltarOpacidade:(s.tutIdx||0)===0?'.4':'1',
+      tutBotao:(s.tutIdx||0)>=TUTORIAL.length-1 ? (s.perfil?'Voltar à trilha':'Fazer o nivelamento') : 'Continuar',
+      tutVoltar:()=>this.setState(x=>({tutIdx:Math.max(0,(x.tutIdx||0)-1)})),
+      tutAvancar:()=>{
+        const i=(this.state.tutIdx||0);
+        if(i<TUTORIAL.length-1) this.setState({tutIdx:i+1});
+        else if(this.state.perfil) this.setState({tela:'mapa'});
+        else this.comecarNivel();
+      },
+      pularTutorial:()=>{ if(this.state.perfil) this.setState({tela:'mapa'}); else this.comecarNivel(); },
+      verTutorial:()=>this.setState({tela:'tutorial', tutIdx:0}),
+      energiaTxt: p.premium ? '∞' : (this.energiaAgora(p)+'/'+ENERGIA_MAX),
+      energiaMinTxt:ENERGIA_MIN, energiaMaxTxt:ENERGIA_MAX,
+      energiaTitulo: p.premium ? 'Energia ilimitada' : (this.energiaAgora(p)<=0 ? 'Sem energia' : ('Energia '+this.energiaAgora(p)+'/'+ENERGIA_MAX)),
+      recargaTxt: (()=>{ const ms=this.proximaRecarga(p); if(!ms) return 'agora';
+        const m=Math.floor(ms/60000), sg=Math.floor((ms%60000)/1000); return m+' min '+String(sg).padStart(2,'0')+'s'; })(),
+      verEnergia:()=>this.setState({tela:'energia'}),
+      assinar:()=>{ this.salvar({...p, premium:true, energia:ENERGIA_MAX, energiaTs:Date.now()}); this.setState({tela:'mapa'}); },
+      mostrarBoost:this.boostAtivo || !!p.premium,
+      boostTxt: p.premium ? 'Nurse GO Plus ativo · XP em dobro' : ('Boost de XP 2x por mais '+Math.max(1,Math.round(((p.boostAte||0)-Date.now())/60000))+' min'),
+
+      modoMilhao:s.modo==='milhao',
+      premioAtual:(PREMIOS[s.idx]||0).toLocaleString('pt-BR'),
+      escada:PREMIOS.map((v,i)=>{
+        const passado=i<s.idx, atual=i===s.idx, seguro=SEGUROS.includes(i+1);
+        return {n:i+1,
+          bg: atual ? '#F2C24A' : (passado ? 'rgba(123,227,192,.28)' : 'rgba(255,255,255,.08)'),
+          bd: seguro ? 'rgba(242,194,74,.75)' : 'rgba(255,255,255,.14)',
+          fg: atual ? '#3A2A00' : (passado ? '#7BE3C0' : 'rgba(255,255,255,.55)')};
+      }),
+      escadaNota:'Degraus '+SEGUROS.join(' e ')+' garantem o acumulado. Errar fora deles derruba você para o último ponto seguro.',
+      cartasTravada: s.cartas<=0 || respondeu || (s.eliminadas||[]).length>0,
+      cartasOpacidade: (s.cartas<=0||respondeu||(s.eliminadas||[]).length>0) ? '.45' : '1',
+      usarCartas:()=>{
+        const st=this.state, qq=st.fila[st.idx]; if(!qq || st.cartas<=0) return;
+        const erradas=[0,1,2,3].filter(i=>i!==qq.c).sort(()=>Math.random()-.5).slice(0,2);
+        this.setState({eliminadas:erradas, cartas:st.cartas-1});
+      },
+      plateiaTravada: s.plateia<=0 || respondeu || !!s.pesquisa,
+      plateiaOpacidade: (s.plateia<=0||respondeu||!!s.pesquisa) ? '.45' : '1',
+      usarPlateia:()=>{
+        const st=this.state, qq=st.fila[st.idx]; if(!qq || st.plateia<=0) return;
+        const elim=st.eliminadas||[];
+        const validas=[0,1,2,3].filter(i=>!elim.includes(i));
+        const acerto = validas.length<=2 ? (62 + Math.floor(Math.random()*17)) : (46 + Math.floor(Math.random()*26));
+        const restante = 100-acerto;
+        const outras = validas.filter(i=>i!==qq.c);
+        const res=[0,0,0,0];
+        res[qq.c]=acerto;
+        let sobra=restante;
+        const teto = acerto-1;
+        outras.forEach((idx,k)=>{
+          const restantes = outras.length-1-k;
+          const max = Math.min(teto, sobra - restantes);
+          const v = k===outras.length-1 ? Math.min(sobra, teto) : Math.max(0, Math.floor(Math.random()*(max+1)));
+          res[idx]=v; sobra-=v;
+        });
+        if(sobra>0) res[qq.c]+=sobra;
+        this.setState({pesquisa:res, plateia:st.plateia-1});
+      },
+      pararTravado: respondeu || s.idx===0,
+      pararOpacidade: (respondeu||s.idx===0) ? '.45' : '1',
+      pararMilhao:()=>{ clearInterval(this.tick); this.setState({parou:true}, ()=>this.finalizar(false)); },
+
+      modoCaso:s.modo==='caso',
+      vinheta:(s.caso&&s.caso.vinheta)||'',
+      vidasTxt:(s.vidas||0)+'/'+((s.caso&&s.caso.vidas)||3),
+      vidasPct:pct(s.vidas||0,(s.caso&&s.caso.vidas)||3),
+
+      telaAvatar:s.tela==='avatar',
+      irAvatar:()=>this.setState({tela:'avatar'}),
+      avPreviewBg:(AV_CORES.find(c=>c.id===(p.avCor||'azul'))||AV_CORES[0]).bg,
+      avPreviewSrc:(AV_SIMBOLOS.find(x=>x.id===(p.avSimbolo||'coracao'))||AV_SIMBOLOS[0]).src,
+      avCores:AV_CORES.map(c=>({bg:c.bg, borda: (p.avCor||'azul')===c.id ? '#0A2540' : 'transparent',
+        click:()=>this.salvar({...this.state.perfil, avCor:c.id})})),
+      avSimbolos:AV_SIMBOLOS.map(x=>{ const sel=(p.avSimbolo||'coracao')===x.id;
+        return {src:x.src, bg: sel?'#0A2540':'#fff', cor: sel?'#fff':'#5A7383', borda: sel?'#0A2540':'#DCE6EA',
+          click:()=>this.salvar({...this.state.perfil, avSimbolo:x.id})}; }),
+      temFoto:!!p.foto,
+      fotoTitulo: p.foto ? 'Trocar a foto' : 'Escolher uma foto',
+      removerFoto:()=>this.salvar({...this.state.perfil, foto:null}),
+      semFoto:!p.foto,
+      fotoBg: p.foto ? ('center/cover no-repeat url('+p.foto+')') : 'rgba(255,255,255,.12)',
+      avatarBg: p.foto ? ('center/cover no-repeat url('+p.foto+')') : (AV_CORES.find(c=>c.id===(p.avCor||'azul'))||AV_CORES[0]).bg,
+      setFoto:(e)=>{ const f=e.target.files && e.target.files[0]; if(!f) return;
+        const r=new FileReader(); r.onload=()=>this.salvar({...this.state.perfil, foto:String(r.result)}); r.readAsDataURL(f); },
+      subtituloPerfil:[p.curso, p.instituicao].filter(Boolean).join(' · ') || ((p.salvos||0)+' pacientes salvos · '+(p.licoes||0)+' atividades'),
+      situacoes:SITUACOES.map(n=>{ const sel=(p.situacao||'Estudando')===n;
+        return {nome:n, bg: sel?'#EAF3FC':'#fff', cor: sel?'#1B6FD1':'#5A7383', borda: sel?'#1B6FD1':'#DCE6EA',
+          click:()=>this.salvar({...this.state.perfil, situacao:n})}; }),
+      instituicao:p.instituicao||'',
+      curso:p.curso||'',
+      setInstituicao:(e)=>this.salvar({...this.state.perfil, instituicao:e.target.value.slice(0,48)}),
+      setCurso:(e)=>this.salvar({...this.state.perfil, curso:e.target.value.slice(0,48)}),
+      planoTxt: p.premium ? 'Nurse GO Plus' : 'Plano gratuito',
+      planoBg: p.premium ? '#7BE3C0' : 'rgba(255,255,255,.14)',
+      planoFg: p.premium ? '#04352A' : '#fff',
+
+      nomeInput:s.nomeInput,
+      setNome:(e)=>this.setState({nomeInput:e.target.value.slice(0,20)}),
+      comecarNivel:()=>this.setState({tela:'tutorial', tutIdx:0}),
+      pularNivel:()=>{ this.salvar(this.novoPerfil(s.nomeInput,1,0)); this.setState({tela:'mapa'}); },
+
+      xpTxt:(p.xp||0).toLocaleString('pt-BR'),
+      streakTxt:(p.streak||0)+'d',
+      nivelTxt:NIVEIS[p.nivel||1],
+      licoesTxt:(p.licoes||0),
+      nomeJogador:p.nome||'Estudante',
+      trilha,
+      metaTxt:feitasSemana+'/'+this.metaSemanal,
+      metaPct:pct(feitasSemana,this.metaSemanal),
+      metaSub: feitasSemana>=this.metaSemanal ? 'Meta batida. A ofensiva continua enquanto você jogar todo dia.' : ('Faltam '+(this.metaSemanal-feitasSemana)+' lições para fechar a semana.'),
+
+      segmentos:SEGS.map((x,i)=>({nome:x.nome, fg:x.fg, deg:(i*60+30)+'deg'})),
+      wheelDeg:s.wheelDeg+'deg',
+      roletaTitulo: seg ? seg.nome : (s.girando?'Girando…':'Toque para girar'),
+      roletaSub: seg
+        ? (seg.tipo==='emergencia' ? 'Um caso real de plantão. Cada conduta errada tira vida do paciente.'
+          : seg.tipo==='bau' ? 'Sorte sua: recompensa direta, sem responder nada.'
+          : seg.tipo==='bonus' ? 'Seis questões mistas com XP dobrado.'
+          : 'Seis questões sorteadas de '+(seg.k==='misto'?'todo o banco':(seg.k==='cardio'?'cardiovascular':'respiratório'))+'.')
+        : 'A roleta sorteia o que vem nesta casa: rodada, bônus, baú ou uma emergência.',
+      roletaBotao: seg ? (seg.tipo==='emergencia' ? 'Assumir o caso' : seg.tipo==='bau' ? 'Abrir o baú' : 'Começar rodada') : (s.girando?'…':'Girar'),
+      roletaTravada:s.girando, roletaOpacidade:s.girando?'.5':'1',
+      acaoRoleta: seg ? ()=>{
+          const no=this.state.noAtual;
+          if(seg.tipo==='bau'){ this.setState({tela:'bau', bauAberto:false, bauValor:0}); return; }
+          if(seg.tipo==='emergencia'){
+            const cs=this.state.casos||[];
+            if(!cs.length) return;
+            const caso=cs[Math.floor(Math.random()*cs.length)];
+            this.setState({tela:'quiz', modo:'caso', caso, fila:caso.passos, idx:0, escolha:null, dica:false,
+              dicas:1, xpRodada:0, acertos:0, errosRodada:[], bonus:false, vidas:caso.vidas, obito:false}, ()=>this.iniciarTimer());
+            return;
+          }
+          const fila=this.pool(seg.k).slice().sort(()=>Math.random()-.5).slice(0,6);
+          this.setState({tela:'quiz', modo:'relampago', bonus:seg.tipo==='bonus', fila, idx:0, escolha:null, dica:false, dicas:1, xpRodada:0, acertos:0, errosRodada:[]}, ()=>this.iniciarTimer());
+        }
+        : ()=>this.girar(),
+
+      bauAberto:s.bauAberto,
+      bauBg: s.bauAberto ? '#7BE3C0' : '#F2C24A',
+      bauIcone: s.bauAberto ? 'icons/sparkles.svg' : 'icons/gift.svg',
+      bauTitulo: s.bauAberto ? ('+'+s.bauValor+' XP') : 'Baú fechado',
+      bauTag: (s.noAtual && s.noAtual.tipo==='bau') ? 'Recompensa da unidade' : 'Prêmio da roleta',
+      bauTexto: s.bauAberto
+        ? 'XP creditado, mais 2 de energia e boost de XP 2x por 30 minutos.'
+        : ((s.noAtual && s.noAtual.tipo==='bau')
+          ? 'Você chegou ao fim da unidade. Toque no baú para receber a recompensa.'
+          : 'A roleta parou no baú. Toque para receber a recompensa.'),
+      abrirBau:()=>{
+        if(this.state.bauAberto) return;
+        const v=50+Math.floor(Math.random()*11)*10;
+        const np={...this.state.perfil}; np.xp=(np.xp||0)+v;
+        np.boostAte=Date.now()+30*60000;
+        np.energia=Math.min(ENERGIA_MAX,(this.energiaAgora(np))+2); np.energiaTs=Date.now();
+        const no=this.state.noAtual; if(no && no.i===np.prog) np.prog=no.i+1;
+        this.salvar(np);
+        this.setState({bauAberto:true, bauValor:v});
+      },
+
+      tituloQuiz: s.modo==='caso' ? ((s.caso&&s.caso.titulo)||'Emergência') : (modoTitulo[s.modo] || ((s.noAtual&&s.noAtual.rotulo)||'Lição')),
+      progPct:pct(s.idx+(respondeu?1:0), s.fila.length),
+      xpRodada:s.xpRodada,
+      temTimer:s.modo!=='nivel',
+      tempoPct:pct(s.tempo,this.segTempo), tempoTxt:s.tempo+'s',
+      corTempo: s.tempo<=8 ? '#F2994A' : '#05A67A',
+      chipTxt: s.modo==='milhao' ? ('Degrau '+(s.idx+1)+' de '+s.fila.length) : (s.modo==='caso' ? ('Passo '+(s.idx+1)) : (q ? NIVEIS[q.n] : 'Base')),
+      chipBg: s.modo==='caso' ? '#FDEDF0' : (q&&q.n===3?'#FDEDF0':(q&&q.n===2?'#EAF3FC':'#EAF7F2')),
+      chipFg: s.modo==='caso' ? '#C2415A' : (q&&q.n===3?'#C2415A':(q&&q.n===2?'#1B6FD1':'#05A67A')),
+      subChip: s.modo==='nivel' ? ('questão '+(s.idx+1)+' de '+s.fila.length)
+        : s.modo==='milhao' ? ('vale '+(PREMIOS[s.idx]||0).toLocaleString('pt-BR')+' XP')
+        : s.modo==='caso' ? ('erro custa '+((q&&q.dano)||1)+' de vida')
+        : (q ? ('vale '+(20*(q.n||1)*(s.bonus?2:1)*(this.boostAtivo?2:1))+' XP + tempo') : ''),
+      enunciado: q ? q.q : '',
+      alternativas,
+
+      temDica:s.modo!=='nivel',
+      mostrarDica:s.dica && !respondeu,
+      textoDica: q ? q.d : '',
+      dicasRestantes:s.dicas,
+      dicaTravada: s.dicas<=0 || respondeu || s.dica,
+      dicaOpacidade:(s.dicas<=0||respondeu||s.dica)?'.45':'1',
+      pedirDica:()=>{ if(this.state.dicas>0) this.setState(x=>({dica:true, dicas:x.dicas-1, xpRodada:Math.max(0,x.xpRodada-15)})); },
+
+      mostrarFeedback:respondeu,
+      temExplicacao:respondeu && s.modo!=='nivel',
+      fbBg: s.modo==='nivel' ? '#EEF3F5' : (certo?'#EAF7F2':'#FDEDF0'),
+      fbBd: s.modo==='nivel' ? '#DCE6EA' : (certo?'#C9E9DD':'#F6D2DA'),
+      fbCor: s.modo==='nivel' ? '#5A7383' : (certo?'#05A67A':'#C2415A'),
+      fbIcone: s.modo==='nivel' ? 'icons/check.svg' : (certo?'icons/check.svg':'icons/x.svg'),
+      fbTitulo: s.modo==='nivel' ? 'Resposta registrada' : (certo?'Correto':(s.escolha===-1?'Tempo esgotado':'Não é essa')),
+      fbGanho: s.modo==='nivel' ? '' : (certo?('+'+s.ultimoGanho+' XP'):'+0'),
+      explicacao: q ? q.e : '',
+
+      avancar:()=>this.avancar(),
+      avancarTravado:!respondeu,
+      avancarTxt: s.obito ? 'Ver desfecho'
+        : (s.modo==='milhao' && respondeu && !certo) ? 'Ver quanto levou'
+        : (s.modo==='milhao' && !ultimo) ? 'Subir um degrau'
+        : (ultimo ? (s.modo==='nivel'?'Ver meu nível':'Ver resultado') : 'Próxima'),
+      avancarBg: respondeu?(certo||s.modo==='nivel'?'#05A67A':'#0A2540'):'#9FB3BF',
+      avancarSombra: respondeu?(certo||s.modo==='nivel'?'#04835F':'#061A2E'):'#7E939F',
+      avancarOpacidade: respondeu?'1':'.7',
+      sairQuiz:()=>{ clearInterval(this.tick); this.setState({tela: this.state.perfil ? 'mapa' : 'boas'}); },
+
+      fimTag:s.fimTag, fimTitulo:s.fimTitulo, fimTexto:s.fimTexto,
+      fimBarra:pct(s.acertos, s.fila.length),
+      mascoteLabel: s.fimObito ? 'mascote luto' : 'mascote comemora',
+      fimBg: s.fimObito ? 'linear-gradient(175deg,#3A0F1B,#6E2233 60%,#8C2E3F)' : 'linear-gradient(175deg,#0A2540,#0E3A5E 60%,#05704F)',
+      confete: (s.tela==='fim' && !s.fimObito) ? Array.from({length:16},(_,i)=>({
+        left:Math.round((i*6.3+ (i%3)*4)%96)+'%',
+        cor:['#F2C24A','#7BE3C0','#3FA0E8','#F2994A','#fff'][i%5],
+        dur:(1.5+((i*7)%9)/10).toFixed(1)+'s',
+        delay:(((i*13)%12)/10).toFixed(1)+'s'
+      })) : [],
+      acertosTxt:s.acertos+'/'+(s.fila.length||1),
+      novasConquistas:s.novas, temNovasConquistas:(s.novas||[]).length>0,
+
+      conquistas, conquistasTxt:((p.conquistas||[]).length)+'/'+CONQUISTAS.length,
+      ranking, rankingVazio:!(p.ranking||[]).length,
+      erros, revisaoVazia:!(p.erros||[]).length,
+      revisaoResumo:(p.erros||[]).length ? ((p.erros.length)+' questões guardadas') : 'Nenhum erro guardado',
+
+      irMapa:()=>this.setState({tela: this.state.perfil ? 'mapa' : 'boas', sorteado:null}),
+      irRevisao:()=>this.setState({tela:'revisao'}),
+      irPerfil:()=>this.setState({tela:'perfil'}),
+      limparErros:()=>this.salvar({...p, erros:[]}),
+      trocarNome:()=>{ const n=window.prompt('Como você quer aparecer no ranking?', p.nome||'Estudante'); if(n&&n.trim()) this.salvar({...p, nome:n.trim().slice(0,20)}); },
+      reiniciar:()=>{ if(window.confirm('Isso apaga seu progresso e refaz o nivelamento. Continuar?')){ try{localStorage.removeItem(CHAVE);}catch(e){} this.setState({perfil:null, tela:'boas', nomeInput:''}); } }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

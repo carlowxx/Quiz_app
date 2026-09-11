@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#0A2540;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer}
+a{color:#1B6FD1}a:hover{color:#05A67A}
+@keyframes pvPop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes pvUp{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes pvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes pvShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:radial-gradient(120% 60% at 50% 0%, #103A63 0%, #0A2540 55%, #071B2E 100%);display:flex;justify-content:center;font-family:'Public Sans',system-ui,sans-serif">
+<div style="width:100%;max-width:430px;min-height:100vh;background:#F5F8F9;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 80px rgba(0,0,0,.45)">
+
+<sc-if value="{{ telaHome }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;flex:1">
+  <div style="background:linear-gradient(160deg,#0A2540 0%,#124E77 60%,#05A67A 165%);padding:26px 22px 30px;color:#fff">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;border-radius:50%;background:#05A67A;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(5,166,122,.22)">
+        <div style="width:10px;height:10px;border-radius:50%;background:#fff"></div>
+      </div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.4px">Pulso Vital</div>
+    </div>
+    <div style="margin-top:22px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:29px;line-height:1.12;letter-spacing:-.8px;text-wrap:pretty">Fisiologia e anatomia,<br>uma rodada por vez.</div>
+    <div style="margin-top:9px;font-size:14px;line-height:1.5;color:rgba(255,255,255,.72);max-width:300px">Sistema cardiovascular e sistema respiratório. A dificuldade acompanha o seu desempenho.</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:24px">
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 12px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Pontos</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;margin-top:3px">{{ pontosTotais }}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 12px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Ofensiva</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;margin-top:3px">{{ ofensivaTxt }}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 12px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Nível</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;margin-top:3px">{{ nivelTxt }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:20px 22px 30px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:#0A2540">Seu progresso</div>
+      <div style="font-size:12px;color:#5A7383;font-weight:500">{{ dominioTxt }}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px;background:#fff;border:1px solid #DCE6EA;border-radius:18px;padding:16px">
+      <sc-for list="{{ barras }}" as="b" hint-placeholder-count="2">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:#0A2540;margin-bottom:6px"><span>{{ b.nome }}</span><span style="color:#5A7383;font-weight:500">{{ b.txt }}</span></div>
+          <div style="height:8px;border-radius:99px;background:#E7EEF1;overflow:hidden">
+            <div style="height:100%;border-radius:99px;background:{{ b.cor }};width:{{ b.pct }}"></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <button onClick="{{ irRoleta }}" style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:18px 20px;border:none;border-radius:20px;background:linear-gradient(135deg,#05A67A,#04916A);color:#fff;box-shadow:0 10px 24px -8px rgba(5,166,122,.7);transition:transform .15s" style-active="transform:scale(.98)">
+      <div style="text-align:left">
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.3px">Girar a roleta</div>
+        <div style="font-size:12.5px;opacity:.85;margin-top:2px">{{ porRodadaTxt }}</div>
+      </div>
+      <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700">›</div>
+    </button>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onClick="{{ irRanking }}" style="padding:15px;border-radius:16px;border:1px solid #DCE6EA;background:#fff;color:#0A2540;text-align:left" style-hover="border-color:#1B6FD1">
+        <div style="font-weight:700;font-size:14px;font-family:'Bricolage Grotesque',sans-serif">Ranking</div>
+        <div style="font-size:11.5px;color:#5A7383;margin-top:2px">{{ rankResumo }}</div>
+      </button>
+      <button onClick="{{ irRevisao }}" style="padding:15px;border-radius:16px;border:1px solid #DCE6EA;background:#fff;color:#0A2540;text-align:left" style-hover="border-color:#1B6FD1">
+        <div style="font-weight:700;font-size:14px;font-family:'Bricolage Grotesque',sans-serif">Revisar erros</div>
+        <div style="font-size:11.5px;color:#5A7383;margin-top:2px">{{ revisaoResumo }}</div>
+      </button>
+    </div>
+
+    <div style="margin-top:4px;display:flex;align-items:center;gap:10px;background:#EAF7F2;border:1px solid #C9E9DD;border-radius:14px;padding:12px 14px">
+      <div style="font-size:11.5px;line-height:1.45;color:#0A2540">Jogando como <strong>{{ nomeJogador }}</strong>.</div>
+      <button onClick="{{ trocarNome }}" style="margin-left:auto;flex:none;border:none;background:#05A67A;color:#fff;font-size:11.5px;font-weight:600;padding:7px 12px;border-radius:99px">Trocar</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaRoleta }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:linear-gradient(175deg,#0A2540,#0E3A5E 70%,#0A2540)">
+  <div style="padding:18px 22px;display:flex;align-items:center;gap:12px">
+    <button onClick="{{ irHome }}" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-size:16px;line-height:1">‹</button>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:#fff">A roleta decide</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px 30px">
+    <div style="position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;top:-8px;left:50%;margin-left:-11px;width:22px;height:26px;background:#fff;clip-path:polygon(50% 100%,0 0,100% 0);z-index:3;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))"></div>
+      <div style="position:absolute;inset:0;border-radius:50%;border:8px solid #0A2540;box-shadow:0 0 0 4px rgba(255,255,255,.18), 0 24px 50px -14px rgba(0,0,0,.7);overflow:hidden;background:conic-gradient(#1B6FD1 0deg 60deg,#05A67A 60deg 120deg,#F5F8F9 120deg 180deg,#1B6FD1 180deg 240deg,#05A67A 240deg 300deg,#0A2540 300deg 360deg);transition:transform 4.2s cubic-bezier(.16,.9,.2,1);transform:rotate({{ wheelDeg }})">
+        <sc-for list="{{ segmentos }}" as="s" hint-placeholder-count="6">
+          <div style="position:absolute;top:50%;left:50%;width:0;height:0;transform:rotate({{ s.deg }})">
+            <div style="position:absolute;transform:translate(-50%,-50%) translateY(-92px);width:78px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:-.2px;color:{{ s.fg }}">{{ s.nome }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position:absolute;width:64px;height:64px;border-radius:50%;background:#fff;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)">
+        <div style="width:16px;height:16px;border-radius:50%;background:#05A67A"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:30px;text-align:center;min-height:66px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;color:#fff;letter-spacing:-.5px">{{ roletaTitulo }}</div>
+      <div style="margin-top:6px;font-size:13.5px;color:rgba(255,255,255,.66);line-height:1.45;max-width:290px;margin-left:auto;margin-right:auto">{{ roletaSub }}</div>
+    </div>
+
+    <button onClick="{{ acaoRoleta }}" disabled="{{ roletaTravada }}" style="margin-top:22px;width:100%;padding:17px;border:none;border-radius:18px;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16.5px;letter-spacing:-.2px;opacity:{{ roletaOpacidade }};box-shadow:0 10px 26px -12px rgba(0,0,0,.8)">{{ roletaBotao }}</button>
+
+    <button onClick="{{ escolherManual }}" style="margin-top:12px;background:none;border:none;color:rgba(255,255,255,.6);font-size:12.5px;font-weight:600;text-decoration:underline;text-underline-offset:3px">Prefiro escolher o tema</button>
+
+    <sc-if value="{{ mostrarManual }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;margin-top:14px">
+        <button onClick="{{ pegarCardio }}" style="padding:12px 6px;border-radius:14px;border:1px solid rgba(255,255,255,.22);background:rgba(27,111,209,.25);color:#fff;font-size:12px;font-weight:700">Cardio</button>
+        <button onClick="{{ pegarResp }}" style="padding:12px 6px;border-radius:14px;border:1px solid rgba(255,255,255,.22);background:rgba(5,166,122,.25);color:#fff;font-size:12px;font-weight:700">Respiratório</button>
+        <button onClick="{{ pegarMisto }}" style="padding:12px 6px;border-radius:14px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:700">Misto</button>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaQuiz }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:14px 20px 16px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ sairQuiz }}" style="width:30px;height:30px;flex:none;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-size:15px;line-height:1">‹</button>
+      <div style="flex:1">
+        <div style="font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600">{{ temaLabel }} · questão {{ posTxt }}</div>
+        <div style="height:5px;border-radius:99px;background:rgba(255,255,255,.16);margin-top:6px;overflow:hidden">
+          <div style="height:100%;background:#05A67A;border-radius:99px;transition:width .35s;width:{{ progPct }}"></div>
+        </div>
+      </div>
+      <div style="text-align:right;flex:none">
+        <div style="font-size:10.5px;color:rgba(255,255,255,.55);font-weight:600">PONTOS</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px">{{ pontosRodada }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:13px">
+      <div style="flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden">
+        <div style="height:100%;border-radius:99px;transition:width 1s linear;background:{{ corTempo }};width:{{ tempoPct }}"></div>
+      </div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;color:{{ corTempo }};min-width:34px;text-align:right">{{ tempoTxt }}</div>
+    </div>
+  </div>
+
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;gap:7px;align-items:center;margin-bottom:12px">
+      <span style="font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:{{ chipBg }};color:{{ chipFg }}">{{ nivelQuestao }}</span>
+      <span style="font-size:11.5px;color:#5A7383;font-weight:500">vale {{ valorQuestao }} pts</span>
+    </div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;line-height:1.3;letter-spacing:-.4px;color:#0A2540;text-wrap:pretty">{{ enunciado }}</div>
+  </div>
+
+  <div style="padding:18px 20px 0;display:flex;flex-direction:column;gap:9px">
+    <sc-for list="{{ alternativas }}" as="a" hint-placeholder-count="4">
+      <button onClick="{{ a.click }}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:14px 15px;border-radius:16px;border:2px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};transition:all .18s">
+        <span style="flex:none;width:24px;height:24px;border-radius:8px;background:{{ a.tagBg }};color:{{ a.tagFg }};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;font-family:'Bricolage Grotesque',sans-serif">{{ a.letra }}</span>
+        <span style="font-size:14.5px;line-height:1.4;font-weight:500;padding-top:2px">{{ a.txt }}</span>
+      </button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ mostrarDica }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:14px 20px 0;padding:14px 16px;border-radius:16px;background:#EAF3FC;border:1px solid #C7DEF6;animation:pvUp .3s ease both">
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1B6FD1">Dica do professor</div>
+      <div style="margin-top:6px;font-size:13.5px;line-height:1.5;color:#0A2540">{{ textoDica }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ mostrarFeedback }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:16px 20px 0;padding:16px;border-radius:18px;background:{{ fbBg }};border:1px solid {{ fbBd }};animation:pvUp .28s ease both">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:22px;height:22px;border-radius:50%;background:{{ fbCor }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ fbIcone }}</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15.5px;color:{{ fbCor }}">{{ fbTitulo }}</div>
+        <div style="margin-left:auto;font-weight:700;font-size:14px;color:{{ fbCor }};font-family:'Bricolage Grotesque',sans-serif">{{ fbGanho }}</div>
+      </div>
+      <div style="margin-top:9px;font-size:13.5px;line-height:1.55;color:#0A2540">{{ explicacao }}</div>
+    </div>
+  </sc-if>
+
+  <div style="margin-top:auto;padding:18px 20px 22px;display:flex;gap:10px">
+    <button onClick="{{ pedirDica }}" disabled="{{ dicaTravada }}" style="flex:none;padding:15px 17px;border-radius:16px;border:1px solid #DCE6EA;background:#fff;color:#1B6FD1;font-weight:700;font-size:13.5px;opacity:{{ dicaOpacidade }}">Dica · {{ dicasRestantes }}</button>
+    <button onClick="{{ avancar }}" disabled="{{ avancarTravado }}" style="flex:1;padding:15px;border-radius:16px;border:none;background:{{ avancarBg }};color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15.5px;opacity:{{ avancarOpacidade }}">{{ avancarTxt }}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaResultado }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:linear-gradient(175deg,#0A2540,#0E3A5E 60%,#05704F)">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:34px 24px;color:#fff">
+    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700">Rodada concluída · {{ temaLabel }}</div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:44px;letter-spacing:-1.5px;margin-top:8px;animation:pvPop .4s ease both">{{ pontosRodada }} <span style="font-size:20px;font-weight:700;letter-spacing:-.3px">pts</span></div>
+    <div style="font-size:15px;color:rgba(255,255,255,.78);line-height:1.5;margin-top:6px;max-width:310px;text-wrap:pretty">{{ mensagemFinal }}</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px">
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px">
+        <div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Acertos</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin-top:3px">{{ acertosTxt }}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px">
+        <div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600">Novo nível</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin-top:3px">{{ nivelTxt }}</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px 16px">
+      <div style="font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.85)">{{ notaAdaptativa }}</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:26px">
+      <button onClick="{{ irRoleta }}" style="padding:17px;border-radius:18px;border:none;background:#fff;color:#0A2540;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px">Nova rodada</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onClick="{{ irRevisao }}" style="padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:13.5px">Revisar erros</button>
+        <button onClick="{{ irHome }}" style="padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:13.5px">Início</button>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaRanking }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:18px 20px 22px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ irHome }}" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-size:15px;line-height:1">‹</button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px">Ranking</div>
+    </div>
+    <div style="margin-top:10px;font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.5">Melhores rodadas registradas neste aparelho.</div>
+  </div>
+  <div style="padding:16px 20px 28px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ ranking }}" as="r" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:13px;background:{{ r.bg }};border:1px solid {{ r.bd }};border-radius:16px;padding:13px 15px">
+        <div style="width:28px;height:28px;flex:none;border-radius:9px;background:{{ r.medBg }};color:{{ r.medFg }};display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:13px">{{ r.pos }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:#0A2540;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.nome }}</div>
+          <div style="font-size:11.5px;color:#5A7383;margin-top:1px">{{ r.detalhe }}</div>
+        </div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:#05A67A">{{ r.pontos }}</div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ rankingVazio }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:44px 20px;color:#5A7383;font-size:13.5px;line-height:1.55">Nenhuma rodada registrada ainda.<br>Gire a roleta para entrar no ranking.</div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ telaRevisao }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#F5F8F9">
+  <div style="background:#0A2540;padding:18px 20px 22px;color:#fff">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ irHome }}" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-size:15px;line-height:1">‹</button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px">Revisão dos erros</div>
+      <button onClick="{{ limparErros }}" style="margin-left:auto;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:11.5px;font-weight:600;padding:7px 12px;border-radius:99px">Limpar</button>
+    </div>
+    <div style="margin-top:10px;font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.5">{{ revisaoResumo }}</div>
+  </div>
+  <div style="padding:16px 20px 28px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ erros }}" as="e" hint-placeholder-count="2">
+      <div style="background:#fff;border:1px solid #DCE6EA;border-radius:18px;padding:15px 16px">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:{{ e.cor }}">{{ e.tema }}</div>
+        <div style="margin-top:7px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;line-height:1.35;color:#0A2540;text-wrap:pretty">{{ e.q }}</div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:flex-start">
+          <span style="flex:none;margin-top:1px;font-size:10.5px;font-weight:700;color:#C2415A">SUA</span>
+          <span style="font-size:13px;line-height:1.45;color:#5A7383;text-decoration:line-through">{{ e.sua }}</span>
+        </div>
+        <div style="margin-top:5px;display:flex;gap:8px;align-items:flex-start">
+          <span style="flex:none;margin-top:1px;font-size:10.5px;font-weight:700;color:#05A67A">OK</span>
+          <span style="font-size:13px;line-height:1.45;color:#0A2540;font-weight:600">{{ e.certa }}</span>
+        </div>
+        <div style="margin-top:11px;padding-top:11px;border-top:1px dashed #DCE6EA;font-size:12.5px;line-height:1.55;color:#5A7383">{{ e.exp }}</div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ revisaoVazia }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:44px 20px;color:#5A7383;font-size:13.5px;line-height:1.55">Sem erros guardados.<br>Ou você acertou tudo, ou ainda não jogou.</div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:430,&quot;height&quot;:900},&quot;questoesPorRodada&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:10,&quot;min&quot;:4,&quot;max&quot;:20,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Rodada&quot;},&quot;tempoQuestao&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:30,&quot;min&quot;:10,&quot;max&quot;:90,&quot;unit&quot;:&quot;s&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Rodada&quot;},&quot;corAcento&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#05A67A&quot;,&quot;options&quot;:[&quot;#05A67A&quot;,&quot;#1B6FD1&quot;,&quot;#0A2540&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Visual&quot;}}">
+const BANCO = [
+{t:'cardio',n:1,q:'Qual câmara cardíaca recebe o sangue venoso proveniente da circulação sistêmica?',o:['Átrio direito','Átrio esquerdo','Ventrículo direito','Ventrículo esquerdo'],c:0,d:'Pense em onde desembocam as veias cavas superior e inferior.',e:'As veias cavas superior e inferior desembocam no átrio direito, que recebe todo o sangue venoso sistêmico e o envia ao ventrículo direito.'},
+{t:'cardio',n:1,q:'Qual valva separa o átrio esquerdo do ventrículo esquerdo?',o:['Tricúspide','Mitral (bicúspide)','Aórtica','Pulmonar'],c:1,d:'Ela tem apenas dois folhetos.',e:'A valva mitral, ou bicúspide, é a valva atrioventricular esquerda. A tricúspide ocupa a mesma posição do lado direito.'},
+{t:'cardio',n:1,q:'Qual é a camada muscular do coração, responsável pela contração?',o:['Endocárdio','Pericárdio','Miocárdio','Epicárdio'],c:2,d:'O prefixo "mio" indica músculo.',e:'O miocárdio é a camada média e muscular. O endocárdio reveste internamente as câmaras e o pericárdio envolve o órgão externamente.'},
+{t:'cardio',n:1,q:'Qual estrutura é considerada o marca-passo natural do coração?',o:['Nó atrioventricular','Feixe de His','Nó sinoatrial','Fibras de Purkinje'],c:2,d:'Fica na parede do átrio direito, perto da veia cava superior.',e:'O nó sinoatrial, situado no átrio direito, gera os impulsos com a maior frequência intrínseca e por isso comanda o ritmo cardíaco.'},
+{t:'cardio',n:1,q:'O sangue oxigenado retorna ao coração através de quais vasos?',o:['Veias cavas','Veias pulmonares','Artérias pulmonares','Artérias coronárias'],c:1,d:'São quatro vasos que chegam ao átrio esquerdo.',e:'As quatro veias pulmonares levam sangue oxigenado dos pulmões ao átrio esquerdo. São as únicas veias do corpo que transportam sangue arterializado.'},
+{t:'cardio',n:2,q:'Qual a frequência intrínseca de disparo do nó sinoatrial em um adulto?',o:['20 a 40 bpm','40 a 60 bpm','60 a 100 bpm','100 a 140 bpm'],c:2,d:'Coincide com a faixa considerada normal de frequência cardíaca em repouso.',e:'O nó sinoatrial dispara entre 60 e 100 vezes por minuto. O nó AV assume entre 40 e 60 bpm e as fibras de Purkinje entre 20 e 40 bpm.'},
+{t:'cardio',n:2,q:'No eletrocardiograma, o complexo QRS representa:',o:['Despolarização atrial','Despolarização ventricular','Repolarização ventricular','Repolarização atrial'],c:1,d:'É a maior deflexão do traçado, porque envolve a maior massa muscular.',e:'O QRS corresponde à despolarização dos ventrículos. A repolarização atrial acontece ao mesmo tempo e fica encoberta por ele.'},
+{t:'cardio',n:2,q:'A onda P do eletrocardiograma corresponde a:',o:['Despolarização atrial','Contração ventricular','Repolarização ventricular','Condução pelo feixe de His'],c:0,d:'É a primeira deflexão do ciclo.',e:'A onda P registra a despolarização dos átrios, deflagrada pelo nó sinoatrial, e antecede a contração atrial.'},
+{t:'cardio',n:2,q:'O débito cardíaco é calculado por qual fórmula?',o:['Frequência cardíaca × volume sistólico','Pressão arterial ÷ resistência','Volume sistólico ÷ frequência cardíaca','Pré-carga × pós-carga'],c:0,d:'Envolve quanto sai por batimento e quantos batimentos ocorrem por minuto.',e:'Débito cardíaco = frequência cardíaca × volume sistólico. No adulto em repouso fica em torno de 4 a 8 L/min.'},
+{t:'cardio',n:2,q:'Qual valva o sangue atravessa ao sair do ventrículo direito?',o:['Valva aórtica','Valva mitral','Valva pulmonar','Valva tricúspide'],c:2,d:'Ela guarda a saída para a circulação pulmonar.',e:'A valva pulmonar separa o ventrículo direito do tronco pulmonar. É uma valva semilunar, assim como a aórtica.'},
+{t:'cardio',n:2,q:'A maior parte da perfusão das artérias coronárias ocorre durante:',o:['A sístole ventricular','A diástole ventricular','A sístole atrial','A fase de ejeção rápida'],c:1,d:'Durante a contração o próprio miocárdio comprime os vasos.',e:'Na sístole o miocárdio comprime os vasos intramurais. O enchimento coronariano acontece principalmente na diástole, o que explica a isquemia associada à taquicardia.'},
+{t:'cardio',n:2,q:'A terceira bulha cardíaca (B3) está associada a:',o:['Fechamento das valvas semilunares','Enchimento ventricular rápido','Contração atrial contra ventrículo rígido','Estenose aórtica'],c:1,d:'Ocorre logo no início da diástole.',e:'A B3 surge na fase de enchimento ventricular rápido e sugere sobrecarga de volume, como na insuficiência cardíaca. A B4 relaciona-se à contração atrial contra um ventrículo pouco complacente.'},
+{t:'cardio',n:2,q:'O feixe de His conduz o estímulo elétrico para:',o:['Os átrios','O nó sinoatrial','Os ramos direito e esquerdo, alcançando os ventrículos','As veias pulmonares'],c:2,d:'Ele desce pelo septo interventricular.',e:'O feixe de His parte do nó atrioventricular, percorre o septo e se divide nos ramos direito e esquerdo, que terminam nas fibras de Purkinje.'},
+{t:'cardio',n:3,q:'A lei de Frank-Starling estabelece que:',o:['Quanto maior a pós-carga, maior o débito cardíaco','Quanto maior o estiramento das fibras pelo retorno venoso, maior a força de contração','A frequência cardíaca determina o volume sistólico','A resistência periférica é inversamente proporcional à pressão'],c:1,d:'Relaciona pré-carga com força de ejeção.',e:'Dentro de limites fisiológicos, o aumento do retorno venoso estira as fibras miocárdicas e aumenta a força de contração, elevando o volume sistólico.'},
+{t:'cardio',n:3,q:'Qual a faixa considerada normal para a fração de ejeção do ventrículo esquerdo?',o:['20 a 35%','35 a 50%','55 a 70%','80 a 95%'],c:2,d:'É a proporção do volume diastólico final que é ejetada por batimento.',e:'A fração de ejeção normal fica entre 55 e 70%. Valores abaixo de 40% caracterizam insuficiência cardíaca com fração de ejeção reduzida.'},
+{t:'cardio',n:3,q:'O principal determinante da pós-carga do ventrículo esquerdo é:',o:['O retorno venoso','A resistência vascular sistêmica','O volume diastólico final','A frequência cardíaca'],c:1,d:'É a resistência que o ventrículo precisa vencer para ejetar.',e:'A pós-carga corresponde à carga contra a qual o ventrículo ejeta, determinada sobretudo pela resistência vascular sistêmica e pela pressão aórtica.'},
+{t:'cardio',n:3,q:'Os barorreceptores que participam da regulação rápida da pressão arterial estão localizados em:',o:['Seio carotídeo e arco aórtico','Bulbo e ponte','Rins e suprarrenais','Átrio direito e veias cavas'],c:0,d:'Ficam em pontos estratégicos da saída de sangue para a cabeça e o corpo.',e:'Os barorreceptores do seio carotídeo e do arco aórtico detectam variações de estiramento da parede arterial e ajustam a resposta autonômica em segundos.'},
+{t:'cardio',n:3,q:'A fase de platô do potencial de ação da célula miocárdica contrátil deve-se principalmente a:',o:['Influxo de sódio','Efluxo de potássio','Influxo de cálcio pelos canais lentos tipo L','Efluxo de cloreto'],c:2,d:'É o mesmo íon indispensável para o acoplamento excitação-contração.',e:'O platô (fase 2) resulta do influxo lento de cálcio pelos canais tipo L, equilibrado pelo efluxo de potássio. Ele prolonga o período refratário e impede a tetania do miocárdio.'},
+{t:'cardio',n:3,q:'Qual a pressão arterial média aproximada de um paciente com PA de 120/80 mmHg?',o:['80 mmHg','93 mmHg','100 mmHg','110 mmHg'],c:1,d:'PAM = diastólica + um terço da pressão de pulso.',e:'A pressão de pulso é 40 mmHg. PAM = 80 + (40 ÷ 3) ≈ 93 mmHg. Valores acima de 65 mmHg costumam ser o alvo mínimo de perfusão tecidual.'},
+{t:'cardio',n:3,q:'As artérias coronárias originam-se de qual estrutura?',o:['Arco aórtico','Aorta ascendente, nos seios de Valsalva','Tronco pulmonar','Átrio esquerdo'],c:1,d:'Nascem imediatamente acima de uma das valvas semilunares.',e:'As coronárias direita e esquerda emergem dos seios aórticos (de Valsalva), logo acima da valva aórtica, na aorta ascendente.'},
+
+{t:'resp',n:1,q:'Qual é o principal músculo da respiração?',o:['Intercostais externos','Diafragma','Esternocleidomastóideo','Reto abdominal'],c:1,d:'Sua contração aumenta o diâmetro vertical do tórax.',e:'O diafragma responde por cerca de 70% do volume inspirado em repouso. Ao contrair, ele desce e amplia a cavidade torácica.'},
+{t:'resp',n:1,q:'Em que estrutura ocorre a hematose?',o:['Bronquíolos terminais','Traqueia','Alvéolos pulmonares','Pleura parietal'],c:2,d:'É onde a membrana é fina o bastante para a difusão dos gases.',e:'A hematose ocorre nos alvéolos, através da membrana alveolocapilar, onde o oxigênio difunde para o sangue e o gás carbônico segue no sentido inverso.'},
+{t:'resp',n:1,q:'Qual estrutura impede a entrada de alimento nas vias aéreas durante a deglutição?',o:['Úvula','Epiglote','Glote','Cartilagem cricoide'],c:1,d:'Funciona como uma tampa cartilaginosa.',e:'A epiglote fecha a abertura da laringe durante a deglutição, direcionando o bolo alimentar para o esôfago.'},
+{t:'resp',n:1,q:'Quantos lobos possui o pulmão direito?',o:['Dois','Três','Quatro','Cinco'],c:1,d:'Ele é maior que o esquerdo, que precisa acomodar o coração.',e:'O pulmão direito tem três lobos (superior, médio e inferior). O esquerdo tem dois, além da incisura cardíaca.'},
+{t:'resp',n:2,q:'Qual nervo inerva o diafragma?',o:['Nervo vago','Nervo frênico','Nervo intercostal','Nervo laríngeo recorrente'],c:1,d:'Origina-se de raízes cervicais altas, entre C3 e C5.',e:'O nervo frênico (C3-C5) inerva o diafragma. Lesões medulares acima de C3 comprometem a ventilação espontânea.'},
+{t:'resp',n:2,q:'O surfactante pulmonar é produzido por quais células?',o:['Pneumócitos tipo I','Pneumócitos tipo II','Macrófagos alveolares','Células caliciformes'],c:1,d:'São as células alveolares cuboides, minoria em superfície mas essenciais.',e:'Os pneumócitos tipo II produzem surfactante, que reduz a tensão superficial alveolar e impede o colapso na expiração. Sua imaturidade causa a síndrome do desconforto respiratório do recém-nascido.'},
+{t:'resp',n:2,q:'Em uma pessoa saudável, qual é o principal estímulo para o centro respiratório?',o:['Queda da PaO2','Aumento da PaCO2','Queda do bicarbonato','Aumento da temperatura corporal'],c:1,d:'O gás em questão altera o pH do líquido cefalorraquidiano.',e:'O aumento da PaCO2 eleva a concentração de H+ no líquido cefalorraquidiano e estimula os quimiorreceptores centrais no bulbo. A hipoxemia é estímulo secundário, mediado por quimiorreceptores periféricos.'},
+{t:'resp',n:2,q:'Qual o volume corrente médio de um adulto em repouso?',o:['150 mL','500 mL','1200 mL','2500 mL'],c:1,d:'Corresponde a cerca de 6 a 8 mL por quilo de peso.',e:'O volume corrente é de aproximadamente 500 mL, ou 6 a 8 mL/kg de peso predito. É o volume mobilizado em cada ciclo respiratório tranquilo.'},
+{t:'resp',n:2,q:'A expiração em repouso é um processo:',o:['Ativo, por contração dos intercostais internos','Passivo, por retração elástica do pulmão','Ativo, por contração do diafragma','Passivo, por aumento da pressão pleural positiva contínua'],c:1,d:'Depende da elasticidade do tecido, não de contração muscular.',e:'Na respiração tranquila a expiração é passiva: o relaxamento muscular e a retração elástica do pulmão e da parede torácica bastam. Ela se torna ativa no esforço, com uso dos abdominais e intercostais internos.'},
+{t:'resp',n:2,q:'Em que ponto anatômico a traqueia se bifurca nos brônquios principais?',o:['Carina, na altura de T4-T5','Ângulo de Louis, na altura de T2','Cartilagem cricoide, em C6','Hiato diafragmático, em T10'],c:0,d:'O ponto tem nome próprio e é referência para intubação.',e:'A traqueia se bifurca na carina, aproximadamente na altura de T4-T5, correspondendo externamente ao ângulo esternal.'},
+{t:'resp',n:2,q:'Qual membrana está aderida diretamente à superfície do pulmão?',o:['Pleura parietal','Pleura visceral','Pericárdio seroso','Fáscia endotorácica'],c:1,d:'"Visceral" refere-se ao órgão em si.',e:'A pleura visceral reveste a superfície pulmonar; a parietal reveste a parede torácica. Entre elas há o espaço pleural com pressão negativa e líquido lubrificante.'},
+{t:'resp',n:2,q:'Qual é o valor normal da PaO2 em ar ambiente ao nível do mar?',o:['35 a 45 mmHg','60 a 75 mmHg','80 a 100 mmHg','110 a 130 mmHg'],c:2,d:'Não confunda com a PaCO2, que é bem menor.',e:'A PaO2 normal fica entre 80 e 100 mmHg. Valores abaixo de 60 mmHg caracterizam insuficiência respiratória hipoxêmica.'},
+{t:'resp',n:2,q:'O espaço morto anatômico de um adulto corresponde a aproximadamente:',o:['50 mL','150 mL','350 mL','600 mL'],c:1,d:'Cerca de 2 mL por quilo de peso.',e:'O espaço morto anatômico é de cerca de 150 mL, o ar que ocupa as vias condutoras e não participa das trocas gasosas. Por isso ventilações com volume corrente muito baixo são pouco eficientes.'},
+{t:'resp',n:2,q:'Os quimiorreceptores periféricos que respondem à hipoxemia localizam-se em:',o:['Bulbo e ponte','Corpos carotídeos e aórticos','Pleura visceral','Musculatura intercostal'],c:1,d:'Ficam próximos aos barorreceptores arteriais.',e:'Os corpos carotídeos (bifurcação da carótida comum) e aórticos detectam queda da PaO2 e enviam sinais ao centro respiratório pelos nervos glossofaríngeo e vago.'},
+{t:'resp',n:3,q:'O que é o volume residual?',o:['O ar mobilizado em uma respiração tranquila','O ar que permanece nos pulmões após uma expiração máxima','O ar inspirado além do volume corrente','O ar contido nas vias condutoras'],c:1,d:'É o único volume que não pode ser medido por espirometria simples.',e:'O volume residual é o ar que permanece após expiração forçada máxima, cerca de 1200 mL. Ele impede o colapso alveolar completo e só é mensurado por métodos como diluição de hélio ou pletismografia.'},
+{t:'resp',n:3,q:'Por que corpos estranhos aspirados alojam-se com mais frequência no brônquio principal direito?',o:['Porque é mais longo e horizontal','Porque é mais curto, calibroso e verticalizado','Porque recebe menor fluxo aéreo','Porque não possui cartilagem'],c:1,d:'Compare o ângulo dos dois brônquios em relação à traqueia.',e:'O brônquio principal direito é mais curto, de maior calibre e mais verticalizado, o que favorece a aspiração de corpos estranhos e a intubação seletiva acidental desse lado.'},
+{t:'resp',n:3,q:'O efeito Bohr descreve que:',o:['O aumento do pH desloca a curva de dissociação da hemoglobina para a direita','A queda do pH e o aumento do CO2 deslocam a curva para a direita, liberando mais O2 nos tecidos','A hipotermia aumenta a liberação de oxigênio','O CO2 aumenta a afinidade da hemoglobina pelo oxigênio'],c:1,d:'Pense no tecido em atividade: mais CO2, mais acidez, mais necessidade de O2.',e:'No efeito Bohr, acidose e hipercapnia reduzem a afinidade da hemoglobina pelo oxigênio, deslocando a curva para a direita e favorecendo a liberação de O2 nos tecidos metabolicamente ativos.'},
+{t:'resp',n:3,q:'A zona de condução da árvore respiratória se estende até:',o:['Os bronquíolos terminais','Os bronquíolos respiratórios','Os ductos alveolares','Os sacos alveolares'],c:0,d:'É a última porção sem alvéolos na parede.',e:'A zona de condução vai das fossas nasais aos bronquíolos terminais (16ª geração). A partir dos bronquíolos respiratórios começa a zona de transição e respiratória, onde já ocorrem trocas.'},
+{t:'resp',n:3,q:'Qual é a relação ventilação/perfusão (V/Q) global considerada normal no pulmão?',o:['Cerca de 0,3','Cerca de 0,8','Cerca de 1,5','Cerca de 2,5'],c:1,d:'A ventilação alveolar é um pouco menor que o débito cardíaco.',e:'A relação V/Q global é de aproximadamente 0,8 (4 L/min de ventilação alveolar para 5 L/min de perfusão). Valores tendendo a zero indicam shunt e valores tendendo ao infinito indicam espaço morto.'},
+{t:'resp',n:3,q:'Qual é a principal forma de transporte de gás carbônico no sangue?',o:['Dissolvido no plasma','Ligado à hemoglobina como carbaminoemoglobina','Como íon bicarbonato','Ligado à albumina'],c:2,d:'Envolve a enzima anidrase carbônica dentro da hemácia.',e:'Cerca de 70% do CO2 é transportado como bicarbonato, formado nas hemácias pela anidrase carbônica. Aproximadamente 23% segue como carbaminoemoglobina e 7% dissolvido no plasma.'}
+];
+
+const TEMAS = {
+  cardio:{nome:'Cardiovascular',curto:'Cardio',cor:'#1B6FD1'},
+  resp:{nome:'Respiratório',curto:'Respiratório',cor:'#05A67A'},
+  misto:{nome:'Misto',curto:'Misto',cor:'#0A2540'}
+};
+const SEGS = [
+  {k:'cardio',nome:'Cardio',fg:'#fff'},
+  {k:'resp',nome:'Respiratório',fg:'#fff'},
+  {k:'misto',nome:'Misto',fg:'#0A2540'},
+  {k:'cardio',nome:'Cardio',fg:'#fff'},
+  {k:'resp',nome:'Respiratório',fg:'#fff'},
+  {k:'misto',nome:'Bônus x2',fg:'#fff'}
+];
+const NIVEIS = {1:'Base',2:'Intermediário',3:'Avançado'};
+const CHAVE = 'pulsovital_v1';
+
+class Component extends DCLogic {
+  state = {
+    tela:'home', perfil:null, girando:false, wheelDeg:0, sorteado:null, bonus:false,
+    manual:false, fila:[], idx:0, escolha:null, dica:false, dicas:2,
+    pontosRodada:0, acertos:0, tempo:30, nivel:1, tema:'misto', errosRodada:[]
+  };
+
+  componentDidMount(){
+    let p = null;
+    try { p = JSON.parse(localStorage.getItem(CHAVE)||'null'); } catch(e){}
+    const hoje = new Date().toISOString().slice(0,10);
+    if(!p) p = {nome:'Estudante', pontos:0, nivel:1, streak:0, ultimo:null, ranking:[], erros:[], vistas:{cardio:[],resp:[]}};
+    if(p.ultimo !== hoje){
+      const ontem = new Date(Date.now()-864e5).toISOString().slice(0,10);
+      if(p.ultimo !== ontem && p.ultimo !== null) p.streak = 0;
+    }
+    this.setState({perfil:p, nivel:p.nivel||1});
+  }
+  componentWillUnmount(){ clearInterval(this.tick); }
+
+  salvar(p){ this.setState({perfil:p}); try{ localStorage.setItem(CHAVE, JSON.stringify(p)); }catch(e){} }
+
+  get nQuestoes(){ return Math.max(4, Math.min(20, this.props.questoesPorRodada ?? 10)); }
+  get segTempo(){ return Math.max(10, Math.min(90, this.props.tempoQuestao ?? 30)); }
+
+  iniciarTimer(){
+    clearInterval(this.tick);
+    this.setState({tempo:this.segTempo});
+    this.tick = setInterval(()=>{
+      this.setState(s=>{
+        if(s.escolha!==null){ return null; }
+        if(s.tempo<=1){ clearInterval(this.tick); return {tempo:0}; }
+        return {tempo:s.tempo-1};
+      }, ()=>{ if(this.state.tempo===0 && this.state.escolha===null) this.responder(-1); });
+    },1000);
+  }
+
+  montarFila(tema, bonus){
+    const pool = BANCO.filter(x=> tema==='misto' ? true : x.t===tema);
+    let nivel = this.state.nivel;
+    const usadas = [], fila = [];
+    for(let i=0;i<this.nQuestoes;i++){
+      let cands = pool.filter(x=>!usadas.includes(x) && x.n===nivel);
+      if(!cands.length) cands = pool.filter(x=>!usadas.includes(x) && Math.abs(x.n-nivel)<=1);
+      if(!cands.length) cands = pool.filter(x=>!usadas.includes(x));
+      if(!cands.length) break;
+      const q = cands[Math.floor(Math.random()*cands.length)];
+      usadas.push(q); fila.push(q);
+      nivel = Math.min(3, nivel + (i%3===2?1:0));
+    }
+    this.setState({tela:'quiz', tema, bonus:!!bonus, fila, idx:0, escolha:null, dica:false, dicas:2, pontosRodada:0, acertos:0, errosRodada:[]}, ()=>this.iniciarTimer());
+  }
+
+  responder(i){
+    if(this.state.escolha!==null) return;
+    clearInterval(this.tick);
+    const q = this.state.fila[this.state.idx];
+    const certo = i===q.c;
+    const base = 100*q.n;
+    const bonusTempo = certo ? Math.round(this.state.tempo*4) : 0;
+    const mult = this.state.bonus?2:1;
+    const ganho = certo ? Math.round((base+bonusTempo)*mult) : 0;
+    const erros = certo ? this.state.errosRodada : this.state.errosRodada.concat([{q, sua: i>=0 ? q.o[i] : 'Tempo esgotado'}]);
+    this.setState(s=>({
+      escolha:i, ultimoGanho:ganho, pontosRodada:s.pontosRodada+ganho,
+      acertos:s.acertos+(certo?1:0), errosRodada:erros,
+      nivel: certo ? Math.min(3,s.nivel+1) : Math.max(1,s.nivel-1)
+    }));
+  }
+
+  avancar(){
+    if(this.state.idx+1 < this.state.fila.length){
+      this.setState(s=>({idx:s.idx+1, escolha:null, dica:false}), ()=>this.iniciarTimer());
+    } else {
+      const p = {...this.state.perfil};
+      const hoje = new Date().toISOString().slice(0,10);
+      p.pontos = (p.pontos||0) + this.state.pontosRodada;
+      p.nivel = this.state.nivel;
+      if(p.ultimo !== hoje){ p.streak = (p.streak||0)+1; p.ultimo = hoje; }
+      p.ranking = (p.ranking||[]).concat([{nome:p.nome, pontos:this.state.pontosRodada, tema:this.state.tema, acertos:this.state.acertos, total:this.state.fila.length, data:hoje}]).sort((a,b)=>b.pontos-a.pontos).slice(0,10);
+      const chaves = (p.erros||[]).map(e=>e.q);
+      p.erros = this.state.errosRodada.map(e=>({q:e.q.q, sua:e.sua, certa:e.q.o[e.q.c], exp:e.q.e, t:e.q.t})).concat((p.erros||[]).filter(e=>!this.state.errosRodada.some(n=>n.q.q===e.q))).slice(0,30);
+      this.salvar(p);
+      this.setState({tela:'resultado'});
+    }
+  }
+
+  girar(){
+    if(this.state.girando) return;
+    const alvo = Math.floor(Math.random()*6);
+    const volta = 360*5 + (360 - (alvo*60 + 30));
+    this.setState(s=>({girando:true, sorteado:null, wheelDeg:s.wheelDeg+volta}));
+    setTimeout(()=>this.setState({girando:false, sorteado:SEGS[alvo]}), 4300);
+  }
+
+  renderVals(){
+    const s = this.state, p = s.perfil||{};
+    const q = s.fila[s.idx];
+    const acento = this.props.corAcento || '#05A67A';
+    const seg = s.sorteado;
+    const nq = this.nQuestoes;
+
+    const cardioTot = BANCO.filter(x=>x.t==='cardio').length;
+    const respTot = BANCO.filter(x=>x.t==='resp').length;
+
+    const alternativas = q ? q.o.map((txt,i)=>{
+      let bg='#fff', bd='#DCE6EA', fg='#0A2540', tagBg='#EEF3F5', tagFg='#5A7383';
+      if(s.escolha!==null){
+        if(i===q.c){ bg='#EAF7F2'; bd='#05A67A'; fg='#04543B'; tagBg='#05A67A'; tagFg='#fff'; }
+        else if(i===s.escolha){ bg='#FDEDF0'; bd='#C2415A'; fg='#7A1F31'; tagBg='#C2415A'; tagFg='#fff'; }
+        else { bg='#fff'; bd='#E7EEF1'; fg='#8FA3AE'; }
+      }
+      return {letra:'ABCD'[i], txt, bg, bd, fg, tagBg, tagFg, click:()=>this.responder(i)};
+    }) : [];
+
+    const certo = q && s.escolha===q.c;
+    const respondeu = s.escolha!==null;
+    const tempoBaixo = s.tempo<=8;
+    const ultimo = s.idx+1 >= s.fila.length;
+
+    const ranking = (p.ranking||[]).map((r,i)=>({
+      pos:i+1, nome:r.nome, pontos:r.pontos,
+      detalhe:(TEMAS[r.tema]||TEMAS.misto).nome+' · '+r.acertos+'/'+r.total+' · '+r.data.split('-').reverse().slice(0,2).join('/'),
+      bg: i===0?'#EAF7F2':'#fff', bd: i===0?'#C9E9DD':'#DCE6EA',
+      medBg: i===0?'#05A67A':(i===1?'#1B6FD1':'#EEF3F5'), medFg: i<2?'#fff':'#5A7383'
+    }));
+
+    const erros = (p.erros||[]).map(e=>({
+      q:e.q, sua:e.sua, certa:e.certa, exp:e.exp,
+      tema:(TEMAS[e.t]||TEMAS.misto).nome, cor:(TEMAS[e.t]||TEMAS.misto).cor
+    }));
+
+    const pct = (n,d)=>Math.round(100*n/d)+'%';
+
+    return {
+      telaHome:s.tela==='home', telaRoleta:s.tela==='roleta', telaQuiz:s.tela==='quiz',
+      telaResultado:s.tela==='resultado', telaRanking:s.tela==='ranking', telaRevisao:s.tela==='revisao',
+
+      nomeJogador:p.nome||'Estudante',
+      pontosTotais:(p.pontos||0).toLocaleString('pt-BR'),
+      ofensivaTxt:(p.streak||0)+(p.streak===1?' dia':' dias'),
+      nivelTxt:NIVEIS[s.nivel]||'Base',
+      dominioTxt:BANCO.length+' questões no banco',
+      porRodadaTxt:nq+' questões · dificuldade adaptativa',
+      barras:[
+        {nome:'Cardiovascular', txt:cardioTot+' questões', cor:'#1B6FD1', pct:pct(cardioTot,BANCO.length)},
+        {nome:'Respiratório', txt:respTot+' questões', cor:'#05A67A', pct:pct(respTot,BANCO.length)}
+      ],
+      rankResumo:(p.ranking||[]).length ? (p.ranking.length+' rodadas') : 'Ainda vazio',
+      revisaoResumo:(p.erros||[]).length ? ((p.erros.length)+' questões guardadas para revisar') : 'Nenhum erro guardado',
+      rankingVazio:!(p.ranking||[]).length, revisaoVazia:!(p.erros||[]).length,
+      ranking, erros,
+
+      segmentos:SEGS.map((x,i)=>({nome:x.nome, fg:x.fg, deg:(i*60+30)+'deg'})),
+      wheelDeg:s.wheelDeg+'deg',
+      roletaTitulo: seg ? seg.nome : (s.girando ? 'Girando…' : 'Toque para girar'),
+      roletaSub: seg ? (seg.nome==='Bônus x2' ? 'Rodada mista com pontuação dobrada. Errar custa o dobro em tempo.' : 'Rodada de '+(TEMAS[seg.k]||TEMAS.misto).nome.toLowerCase()+' com '+nq+' questões.') : 'A roleta sorteia o sistema da próxima rodada.',
+      roletaBotao: seg ? 'Começar rodada' : (s.girando?'…':'Girar'),
+      roletaTravada: s.girando, roletaOpacidade: s.girando?'.5':'1',
+      acaoRoleta: seg ? ()=>this.montarFila(seg.k, seg.nome==='Bônus x2') : ()=>this.girar(),
+      mostrarManual:s.manual,
+      escolherManual:()=>this.setState(x=>({manual:!x.manual})),
+      pegarCardio:()=>this.montarFila('cardio',false),
+      pegarResp:()=>this.montarFila('resp',false),
+      pegarMisto:()=>this.montarFila('misto',false),
+
+      temaLabel:(TEMAS[s.tema]||TEMAS.misto).nome + (s.bonus?' · bônus x2':''),
+      posTxt:(s.idx+1)+'/'+(s.fila.length||nq),
+      progPct:pct(s.idx+(respondeu?1:0), s.fila.length||nq),
+      pontosRodada:s.pontosRodada.toLocaleString('pt-BR'),
+      tempoPct:pct(s.tempo,this.segTempo),
+      tempoTxt:s.tempo+'s',
+      corTempo: tempoBaixo?'#F2994A':acento,
+      nivelQuestao: q ? NIVEIS[q.n] : 'Base',
+      valorQuestao: q ? (100*q.n*(s.bonus?2:1)) : 0,
+      chipBg: q && q.n===3 ? '#FDEDF0' : (q && q.n===2 ? '#EAF3FC' : '#EAF7F2'),
+      chipFg: q && q.n===3 ? '#C2415A' : (q && q.n===2 ? '#1B6FD1' : '#05A67A'),
+      enunciado: q ? q.q : '',
+      alternativas,
+
+      mostrarDica:s.dica && !respondeu,
+      textoDica: q ? q.d : '',
+      dicasRestantes:s.dicas,
+      dicaTravada: s.dicas<=0 || respondeu || s.dica,
+      dicaOpacidade: (s.dicas<=0||respondeu||s.dica) ? '.45' : '1',
+      pedirDica:()=>{ if(this.state.dicas>0) this.setState(x=>({dica:true, dicas:x.dicas-1, pontosRodada:Math.max(0,x.pontosRodada-50)})); },
+
+      mostrarFeedback:respondeu,
+      fbBg: certo?'#EAF7F2':'#FDEDF0', fbBd: certo?'#C9E9DD':'#F6D2DA', fbCor: certo?'#05A67A':'#C2415A',
+      fbIcone: certo?'✓':'!', fbTitulo: certo?'Correto':(s.escolha===-1?'Tempo esgotado':'Não é essa'),
+      fbGanho: certo?('+'+s.ultimoGanho):'+0',
+      explicacao: q ? q.e : '',
+
+      avancar:()=>this.avancar(),
+      avancarTravado:!respondeu,
+      avancarTxt: ultimo ? 'Ver resultado' : 'Próxima questão',
+      avancarBg: respondeu?'#0A2540':'#9FB3BF',
+      avancarOpacidade: respondeu?'1':'.7',
+      sairQuiz:()=>{ clearInterval(this.tick); this.setState({tela:'home'}); },
+
+      acertosTxt:s.acertos+'/'+(s.fila.length||nq),
+      mensagemFinal: s.acertos/(s.fila.length||1) >= .8 ? 'Domínio consistente. As próximas rodadas virão mais difíceis.' : (s.acertos/(s.fila.length||1) >= .5 ? 'Bom desempenho. Revise os erros antes da próxima rodada.' : 'Vale voltar à revisão antes de subir de nível.'),
+      notaAdaptativa: 'Cada acerto sobe um degrau de dificuldade e cada erro desce um. Seu nível atual define de onde saem as próximas questões.',
+
+      irHome:()=>this.setState({tela:'home', sorteado:null, manual:false}),
+      irRoleta:()=>this.setState({tela:'roleta', sorteado:null, manual:false}),
+      irRanking:()=>this.setState({tela:'ranking'}),
+      irRevisao:()=>this.setState({tela:'revisao'}),
+      limparErros:()=>{ const np={...p, erros:[]}; this.salvar(np); },
+      trocarNome:()=>{ const n=window.prompt('Como você quer aparecer no ranking?', p.nome||'Estudante'); if(n && n.trim()) this.salvar({...p, nome:n.trim().slice(0,20)}); }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Nurse GO",
+    "slug": "nurse-go",
+    "scheme": "nursego",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#0A2540",
+    "splash": {
+      "backgroundColor": "#0A2540"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nursego.app"
+    },
+    "android": {
+      "package": "com.nursego.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A2540",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen"
+    ]
+  }
+}

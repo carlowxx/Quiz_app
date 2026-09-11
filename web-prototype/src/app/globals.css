@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #071b2e;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+}
+
+a {
+  color: #1b6fd1;
+}
+a:hover {
+  color: #05a67a;
+}
+
+@keyframes ngUp {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes ngPop {
+  from {
+    transform: scale(0.88);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes ngRing {
+  0%,
+  100% {
+    box-shadow: 0 6px 0 #04835f, 0 0 0 0 rgba(5, 166, 122, 0.45);
+  }
+  50% {
+    box-shadow: 0 6px 0 #04835f, 0 0 0 14px rgba(5, 166, 122, 0);
+  }
+}
+@keyframes ngFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+@keyframes ngConf {
+  0% {
+    transform: translateY(-20px) rotate(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(320px) rotate(540deg);
+    opacity: 0;
+  }
+}
+@keyframes ngBar {
+  from {
+    width: 0;
+  }
+}
