@@ -29,15 +29,20 @@ export async function entrarComEmail(email: string) {
   });
 }
 
-/** Chamado quando o app é aberto pelo link mágico (fluxo PKCE): troca o
- *  `code` da URL por uma sessão de verdade. Devolve true se havia um code
- *  válido nessa URL (para o chamador saber se deve re-sincronizar). */
-export async function trocarCodigoPorSessao(url: string): Promise<boolean> {
+/** Chamado quando o app é aberto pelo link mágico (fluxo implicit): o
+ *  Supabase manda os tokens prontos no fragmento da URL
+ *  (`#access_token=...&refresh_token=...`) — só precisamos ler e
+ *  chamar setSession. Devolve true se havia tokens válidos nessa URL. */
+export async function tratarLinkAuth(url: string): Promise<boolean> {
   const sb = supabase();
   if (!sb) return false;
-  const code = new URL(url).searchParams.get("code");
-  if (!code) return false;
-  const { error } = await sb.auth.exchangeCodeForSession(url);
+  const hash = url.split("#")[1];
+  if (!hash) return false;
+  const params = new URLSearchParams(hash);
+  const access_token = params.get("access_token");
+  const refresh_token = params.get("refresh_token");
+  if (!access_token || !refresh_token) return false;
+  const { error } = await sb.auth.setSession({ access_token, refresh_token });
   return !error;
 }
 

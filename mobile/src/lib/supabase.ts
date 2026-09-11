@@ -22,10 +22,12 @@ export function supabase(): SupabaseClient | null {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        // PKCE: o app troca o "code" do deep link por sessão manualmente
-        // (ver lib/cloud.ts > trocarCodigoPorSessao), chamado a partir do
-        // listener de Linking no hook.
-        flowType: "pkce",
+        // implicit, não pkce: PKCE precisa de crypto.subtle (WebCrypto), que
+        // o Hermes/React Native não tem sem módulo nativo — travaria no
+        // Expo Go. No fluxo implicit o link mágico já vem com os tokens
+        // prontos no fragmento da URL; o app só lê e chama setSession
+        // (ver lib/cloud.ts > tratarLinkAuth).
+        flowType: "implicit",
       },
     });
   }

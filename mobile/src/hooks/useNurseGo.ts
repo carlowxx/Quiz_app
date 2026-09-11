@@ -51,7 +51,7 @@ import {
   enviarPerfil,
   nuvemAtiva,
   sair as sairNuvemFn,
-  trocarCodigoPorSessao,
+  tratarLinkAuth,
 } from "@/lib/cloud";
 import * as Linking from "expo-linking";
 import type { Estado, No, Perfil } from "@/lib/types";
@@ -170,7 +170,7 @@ export function useNurseGo() {
 
     const tratarUrl = (url: string | null) => {
       if (!url) return;
-      trocarCodigoPorSessao(url).catch(() => {});
+      tratarLinkAuth(url).catch(() => {});
     };
     Linking.getInitialURL().then(tratarUrl);
     const sub = Linking.addEventListener("url", (e) => tratarUrl(e.url));
