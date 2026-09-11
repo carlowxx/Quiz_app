@@ -72,11 +72,14 @@ Expo, Google Play Console (US$ 25) e Apple Developer Program (US$
 99/ano) — contas do usuário, não algo que se provisiona por aqui.
 
 ### 3. Contas e nuvem
-Esquema Postgres com RLS já existe (`supabase/schema.sql`):
-`profiles`, `progress`, `answers`, `achievements`,
-`leaderboard_weekly`. Falta: criar o projeto Supabase, rodar o schema,
-configurar login por e-mail (link mágico) e, numa v2, login Google
-(precisa de `expo-auth-session` + esquema nativo registrado nas lojas).
+Esquema Postgres com RLS já existe (`supabase/schema.sql`), incluindo
+moedas/itens/equipado da economia de personalização, e o app já tem a
+tela de login por e-mail (link mágico) e a sincronização de perfil —
+tudo dormente até existir um projeto Supabase de verdade. Falta só:
+criar o projeto, rodar o schema, habilitar o provider de e-mail e
+colar a URL/anon key no `.env` (passo a passo em `mobile/README.md`).
+Login Google fica para uma v2 (precisa de `expo-auth-session` +
+esquema nativo registrado nas lojas).
 
 ### 4. Interação entre colegas
 Ainda não implementada. Escopo desejado: liga semanal por XP (a tabela

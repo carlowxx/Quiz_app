@@ -1,6 +1,8 @@
 -- Nurse GO — esquema mínimo para produção.
 -- Rode no SQL Editor do projeto Supabase (uma vez).
--- Auth: habilite Email (magic link) e Google no painel Authentication > Providers.
+-- Auth: habilite Email (magic link) em Authentication > Providers.
+-- Em Authentication > URL Configuration, adicione "nursego://auth/callback"
+-- em Redirect URLs — sem isso o link mágico não volta pro app.
 
 -- ─────────────────────────────────────────────────────────────
 -- profiles: dados públicos do usuário
@@ -42,6 +44,10 @@ create table if not exists public.progress (
   salvos        integer not null default 0,
   conquistas    text[] not null default '{}',
   ultimo        date,
+  -- economia: moedas, roupas possuídas e o que está equipado (jaleco/chapéu/acessório/pet)
+  moedas        integer not null default 0,
+  itens         text[] not null default '{}',
+  equipado      jsonb not null default '{}'::jsonb,
   atualizado_em timestamptz not null default now()
 );
 

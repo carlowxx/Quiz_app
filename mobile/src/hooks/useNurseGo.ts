@@ -44,7 +44,16 @@ import {
   segunda,
 } from "@/lib/engine";
 import { carregarPerfil, limparPerfil, salvarPerfil } from "@/lib/storage";
-import { enviarPerfil, nuvemAtiva } from "@/lib/cloud";
+import {
+  aoMudarSessao,
+  baixarPerfil,
+  entrarComEmail,
+  enviarPerfil,
+  nuvemAtiva,
+  sair as sairNuvemFn,
+  trocarCodigoPorSessao,
+} from "@/lib/cloud";
+import * as Linking from "expo-linking";
 import type { Estado, No, Perfil } from "@/lib/types";
 
 const ESTADO_INICIAL: Estado = {
@@ -98,6 +107,8 @@ export function useNurseGo() {
   const stRef = useRef<Estado>(st);
   stRef.current = st;
   const [pronto, setPronto] = useState(false);
+  const [emailNuvem, setEmailNuvem] = useState<string | null>(null);
+  const [statusNuvem, setStatusNuvem] = useState<"idle" | "enviando" | "enviado" | "erro">("idle");
   // referência sempre-atual às ações — permite que closures do vm (criadas
   // antes de `acoes` existir) chamem comprarItem/equiparItem/equiparPet.
   const acoesRef = useRef<Any>({});
@@ -142,6 +153,31 @@ export function useNurseGo() {
     return () => {
       if (tickRef.current) clearInterval(tickRef.current);
       if (relogioRef.current) clearInterval(relogioRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── nuvem: sessão + link mágico (só faz algo se Supabase configurado) ──
+  useEffect(() => {
+    if (!nuvemAtiva) return;
+
+    const cancelarSessao = aoMudarSessao((email) => {
+      setEmailNuvem(email);
+      if (email && stRef.current.perfil) {
+        baixarPerfil(stRef.current.perfil).then((mesclado) => salvar(mesclado));
+      }
+    });
+
+    const tratarUrl = (url: string | null) => {
+      if (!url) return;
+      trocarCodigoPorSessao(url).catch(() => {});
+    };
+    Linking.getInitialURL().then(tratarUrl);
+    const sub = Linking.addEventListener("url", (e) => tratarUrl(e.url));
+
+    return () => {
+      cancelarSessao();
+      sub.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -792,6 +828,9 @@ export function useNurseGo() {
       nivelTxt: NIVEIS[p.nivel || 1],
       licoesTxt: String(p.licoes || 0),
       moedasTxt: (p.moedas || 0).toLocaleString("pt-BR"),
+      nuvemAtiva,
+      emailNuvem,
+      statusNuvem,
       nivelJogadorNome: faixaJogador.nome,
       nivelJogadorNum: faixaJogador.nivel,
       petAtualIcone: petAtual.icone,
@@ -1069,7 +1108,7 @@ export function useNurseGo() {
       fotoTitulo: p.foto ? "Trocar a foto" : "Escolher uma foto",
       avatarCores: avCorAtual.bg,
     };
-  }, [st, abrirNo, responder, pronto]);
+  }, [st, abrirNo, responder, pronto, emailNuvem, statusNuvem]);
 
   // ── AÇÕES expostas ──────────────────────────────────────────────
   const acoes = useMemo(
@@ -1236,6 +1275,20 @@ export function useNurseGo() {
       irPerfil: () => set({ tela: "perfil" }),
       irAvatar: () => set({ tela: "avatar" }),
       irLoja: () => set({ tela: "loja" }),
+      entrarNuvem: async (email: string) => {
+        if (!nuvemAtiva || !email.trim()) return;
+        setStatusNuvem("enviando");
+        try {
+          const { error } = await entrarComEmail(email.trim());
+          setStatusNuvem(error ? "erro" : "enviado");
+        } catch {
+          setStatusNuvem("erro");
+        }
+      },
+      sairNuvem: async () => {
+        await sairNuvemFn();
+        setStatusNuvem("idle");
+      },
       escolherCor: (id: string) => salvar({ ...(stRef.current.perfil as Perfil), avCor: id }),
       escolherSimbolo: (id: string) => salvar({ ...(stRef.current.perfil as Perfil), avSimbolo: id }),
       escolherSituacao: (n: string) => salvar({ ...(stRef.current.perfil as Perfil), situacao: n }),

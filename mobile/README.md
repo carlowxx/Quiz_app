@@ -35,8 +35,22 @@ ligar login, progresso sincronizado e ranking semanal:
 2. Rode `../supabase/schema.sql` no SQL Editor do projeto
 3. Copie `.env.example` para `.env` e preencha `EXPO_PUBLIC_SUPABASE_URL`
    e `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-4. Em Authentication > URL Configuration, adicione `nursego://auth/callback`
-   como redirect URL (login por e-mail/link mágico)
+4. Em Authentication > Providers, habilite **Email** (link mágico)
+5. Em Authentication > URL Configuration > Redirect URLs, adicione
+   `nursego://auth/callback` — esse é o endereço que o app usa quando já
+   está instalado de verdade (build EAS, veja abaixo)
+
+A tela **Perfil** ganhou uma seção "Conta na nuvem" (aparece só quando
+as variáveis acima existem): digita o e-mail, manda o link mágico,
+abre o e-mail no celular e toca no link.
+
+**Testando pelo Expo Go:** o app ainda não tem um esquema `nursego://`
+de verdade — só passa a existir depois do primeiro build (EAS dev
+client ou standalone). Enquanto isso, o Expo Go usa uma URL dinâmica
+tipo `exp://192.168.x.x:8081/--/auth/callback`, que muda a cada sessão.
+Pra testar o login já, adicione **também** `exp://**` nos Redirect URLs
+do Supabase (aceita wildcard) — ou simplesmente deixe pra testar depois
+que existir um build de dev client.
 
 Login com Google fica para uma v2 — precisa de `expo-auth-session` e
 esquema nativo registrado nas lojas.

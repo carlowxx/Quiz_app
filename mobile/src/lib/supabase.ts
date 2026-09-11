@@ -22,6 +22,10 @@ export function supabase(): SupabaseClient | null {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
+        // PKCE: o app troca o "code" do deep link por sessão manualmente
+        // (ver lib/cloud.ts > trocarCodigoPorSessao), chamado a partir do
+        // listener de Linking no hook.
+        flowType: "pkce",
       },
     });
   }

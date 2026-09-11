@@ -29,12 +29,36 @@ export async function entrarComEmail(email: string) {
   });
 }
 
+/** Chamado quando o app é aberto pelo link mágico (fluxo PKCE): troca o
+ *  `code` da URL por uma sessão de verdade. Devolve true se havia um code
+ *  válido nessa URL (para o chamador saber se deve re-sincronizar). */
+export async function trocarCodigoPorSessao(url: string): Promise<boolean> {
+  const sb = supabase();
+  if (!sb) return false;
+  const code = new URL(url).searchParams.get("code");
+  if (!code) return false;
+  const { error } = await sb.auth.exchangeCodeForSession(url);
+  return !error;
+}
+
 // Login com Google fica para depois da v1: precisa de expo-auth-session +
 // esquema de URL nativo registrado nas lojas. Ver README > "Contas e nuvem".
 
 export async function sair() {
   const sb = supabase();
   if (sb) await sb.auth.signOut();
+}
+
+/** Assina mudanças de sessão (login/logout/refresh). Devolve o e-mail
+ *  logado (ou null) a cada mudança, incluindo o estado inicial. Chame a
+ *  função devolvida para cancelar a assinatura. */
+export function aoMudarSessao(cb: (email: string | null) => void): () => void {
+  const sb = supabase();
+  if (!sb) return () => {};
+  const { data } = sb.auth.onAuthStateChange((_evento, sessao) => {
+    cb(sessao?.user?.email ?? null);
+  });
+  return () => data.subscription.unsubscribe();
 }
 
 /** Envia o perfil local para a nuvem (upsert em profiles + progress). */
@@ -66,6 +90,9 @@ export async function enviarPerfil(p: Perfil): Promise<void> {
     salvos: p.salvos,
     conquistas: p.conquistas,
     ultimo: p.ultimo,
+    moedas: p.moedas,
+    itens: p.itens,
+    equipado: p.equipado,
     atualizado_em: new Date().toISOString(),
   });
 
@@ -105,6 +132,9 @@ export async function baixarPerfil(local: Perfil): Promise<Perfil> {
     salvos: Math.max(local.salvos, data.salvos ?? 0),
     conquistas: Array.from(new Set([...(local.conquistas || []), ...(data.conquistas || [])])),
     ultimo: data.ultimo ?? local.ultimo,
+    moedas: Math.max(local.moedas || 0, data.moedas ?? 0),
+    itens: Array.from(new Set([...(local.itens || []), ...((data.itens as string[]) || [])])),
+    equipado: { ...(data.equipado || {}), ...(local.equipado || {}) },
   };
 }
 

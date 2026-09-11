@@ -1050,6 +1050,7 @@ function TelaPerfil({ vm, acoes }: Props) {
   const [curso, setCurso] = useState(vm.curso);
   const [editandoNome, setEditandoNome] = useState(false);
   const [nomeTmp, setNomeTmp] = useState(vm.nomeJogador);
+  const [emailTmp, setEmailTmp] = useState("");
 
   const confirmarReiniciar = () => {
     Alert.alert(
@@ -1180,6 +1181,56 @@ function TelaPerfil({ vm, acoes }: Props) {
             </View>
           </View>
         </View>
+
+        {vm.nuvemAtiva && (
+          <View style={{ backgroundColor: "#fff", borderWidth: 1, borderColor: "#DCE6EA", borderRadius: 18, padding: 16, marginBottom: 20 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Icon name="Sparkles" size={16} color="#05A67A" />
+              <Text style={{ fontFamily: FT7, fontSize: 14, color: "#0A2540" }}>Conta na nuvem</Text>
+            </View>
+            {vm.emailNuvem ? (
+              <View style={{ marginTop: 12 }}>
+                <Text style={{ fontSize: 13, color: "#0A2540", fontFamily: FB6 }}>Logado como {vm.emailNuvem}</Text>
+                <Text style={{ fontSize: 11.5, color: "#5A7383", marginTop: 3 }}>Progresso sincronizado — vale nos seus outros aparelhos.</Text>
+                <Pressable
+                  onPress={acoes.sairNuvem}
+                  style={{ marginTop: 10, alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, borderWidth: 1, borderColor: "#DCE6EA" }}
+                >
+                  <Text style={{ fontSize: 12.5, fontFamily: FB7, color: "#C2415A" }}>Sair</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={{ marginTop: 12 }}>
+                <Text style={{ fontSize: 11.5, color: "#5A7383", marginBottom: 8 }}>
+                  Entre com seu e-mail para levar o progresso pra outro aparelho e entrar no ranking semanal.
+                </Text>
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                  <TextInput
+                    value={emailTmp}
+                    onChangeText={setEmailTmp}
+                    placeholder="seu@email.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    style={{ flex: 1, padding: 12, borderRadius: 13, borderWidth: 1, borderColor: "#DCE6EA", backgroundColor: "#F8FBFC", color: "#0A2540", fontFamily: FB6 }}
+                  />
+                  <Pressable
+                    onPress={() => acoes.entrarNuvem(emailTmp)}
+                    disabled={vm.statusNuvem === "enviando"}
+                    style={{ backgroundColor: "#05A67A", borderRadius: 13, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", opacity: vm.statusNuvem === "enviando" ? 0.6 : 1 }}
+                  >
+                    <Text style={{ color: "#fff", fontFamily: FB7, fontSize: 12.5 }}>Enviar link</Text>
+                  </Pressable>
+                </View>
+                {vm.statusNuvem === "enviado" && (
+                  <Text style={{ fontSize: 11.5, color: "#05A67A", marginTop: 8 }}>Link enviado — abra seu e-mail no celular e toque nele.</Text>
+                )}
+                {vm.statusNuvem === "erro" && (
+                  <Text style={{ fontSize: 11.5, color: "#C2415A", marginTop: 8 }}>Não deu pra enviar. Confira o e-mail e tente de novo.</Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6, marginBottom: 10 }}>
           <Text style={{ fontFamily: FT7, fontSize: 15, color: "#0A2540" }}>Conquistas</Text>
