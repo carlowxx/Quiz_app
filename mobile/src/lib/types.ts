@@ -24,6 +24,13 @@ export interface Semana {
   n: number;
 }
 
+export interface Equipado {
+  jaleco?: string;
+  chapeu?: string;
+  acessorio?: string;
+  pet?: string;
+}
+
 export interface Perfil {
   nome: string;
   nivel: number;
@@ -47,6 +54,11 @@ export interface Perfil {
   instituicao: string;
   curso: string;
   situacao: string;
+  /** moeda gasta na loja — separada do XP, que é progresso puro */
+  moedas: number;
+  /** ids de Cosmetico já obtidos (compra ou roleta) */
+  itens: string[];
+  equipado: Equipado;
 }
 
 export type Tela =
@@ -60,7 +72,8 @@ export type Tela =
   | "fim"
   | "perfil"
   | "avatar"
-  | "revisao";
+  | "revisao"
+  | "loja";
 
 export type Modo = "licao" | "nivel" | "check" | "geral" | "milhao" | "relampago" | "caso";
 
@@ -119,4 +132,7 @@ export interface Estado {
   parou: boolean;
   bauAberto: boolean;
   bauValor: number;
+  /** o que a casa/roleta do baú entrega ao abrir: XP+energia, ou uma roupa */
+  bauTipo: "xp" | "item";
+  bauItem: import("@/data/constants").Cosmetico | null;
 }

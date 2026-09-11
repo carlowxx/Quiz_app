@@ -4,8 +4,11 @@ import {
   CONQUISTAS,
   ENERGIA_MAX,
   ENERGIA_MIN,
+  NIVEIS_JOGADOR,
+  PETS,
   UNIDADES,
   type Conquista,
+  type PetDef,
 } from "@/data/constants";
 import type { No, Perfil } from "./types";
 
@@ -69,7 +72,23 @@ export function novoPerfil(nome: string, nivel: number, prog: number): Perfil {
     instituicao: "",
     curso: "",
     situacao: "Estudando",
+    moedas: 0,
+    itens: ["jaleco-branco"],
+    equipado: { jaleco: "jaleco-branco", pet: "pintinho" },
   };
+}
+
+/** nível de jogador (Estagiário → Mestre da Saúde), derivado do XP total */
+export function nivelJogador(xp: number): FaixaNivel_ {
+  let atual = NIVEIS_JOGADOR[0];
+  for (const f of NIVEIS_JOGADOR) if (xp >= f.xpMin) atual = f;
+  return atual;
+}
+type FaixaNivel_ = (typeof NIVEIS_JOGADOR)[number];
+
+/** pets já desbloqueados pelo nível de jogador atual */
+export function petsDesbloqueados(nivelJog: number): PetDef[] {
+  return PETS.filter((p) => nivelJog >= p.nivelMinimo);
 }
 
 /** monta a lista linear de casas da trilha */

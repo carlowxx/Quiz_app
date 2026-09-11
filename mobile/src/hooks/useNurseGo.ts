@@ -9,12 +9,17 @@ import { CASOS } from "@/data/casos";
 import {
   AV_CORES,
   AV_SIMBOLOS,
+  COR_RARIDADE,
+  COSMETICOS,
   CONQUISTAS,
   CUSTO,
   ENERGIA_MAX,
   ENERGIA_MIN,
   META_SEMANAL,
+  MOEDAS_POR_XP,
   NIVEIS,
+  NOME_RARIDADE,
+  PETS,
   PREMIOS,
   SEGS,
   SEGUROS,
@@ -22,6 +27,7 @@ import {
   TEMPO_QUESTAO,
   TUTORIAL,
   UNIDADES,
+  type Cosmetico,
   type Segmento,
 } from "@/data/constants";
 import {
@@ -29,8 +35,10 @@ import {
   embaralhar,
   energiaAgora as calcEnergia,
   hojeISO,
+  nivelJogador,
   nos as montarNos,
   novoPerfil,
+  petsDesbloqueados,
   premiar,
   proximaRecarga as calcRecarga,
   segunda,
@@ -75,6 +83,8 @@ const ESTADO_INICIAL: Estado = {
   parou: false,
   bauAberto: false,
   bauValor: 0,
+  bauTipo: "xp",
+  bauItem: null,
 };
 
 const pct = (n: number, d: number) =>
@@ -88,6 +98,9 @@ export function useNurseGo() {
   const stRef = useRef<Estado>(st);
   stRef.current = st;
   const [pronto, setPronto] = useState(false);
+  // referência sempre-atual às ações — permite que closures do vm (criadas
+  // antes de `acoes` existir) chamem comprarItem/equiparItem/equiparPet.
+  const acoesRef = useRef<Any>({});
 
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const relogioRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -263,7 +276,7 @@ export function useNurseGo() {
         );
 
       if (no.tipo === "bau") {
-        set({ tela: "bau", noAtual: no, bauAberto: false, bauValor: 0 });
+        set({ tela: "bau", noAtual: no, bauAberto: false, bauValor: 0, bauTipo: "xp", bauItem: null });
         return;
       }
       const custo = CUSTO[no.tipo] || 1;
@@ -407,6 +420,7 @@ export function useNurseGo() {
 
       const xpFinal = obito ? 0 : s.modo === "milhao" ? milhaoXp : s.xpRodada;
       p.xp = (p.xp || 0) + xpFinal;
+      p.moedas = (p.moedas || 0) + Math.round(xpFinal * MOEDAS_POR_XP);
       p.licoes = (p.licoes || 0) + 1;
       if (p.ultimo !== hoje) {
         p.streak = (p.streak || 0) + 1;
@@ -725,6 +739,51 @@ export function useNurseGo() {
     const avSimboloAtual =
       AV_SIMBOLOS.find((x) => x.id === (p.avSimbolo || "coracao")) || AV_SIMBOLOS[0];
 
+    // ── economia: moedas, nível de jogador, pets e roupas ──────────
+    const faixaJogador = nivelJogador(p.xp || 0);
+    const equipado = p.equipado || {};
+    const petsAtuais = petsDesbloqueados(faixaJogador.nivel);
+    const petAtual = PETS.find((x) => x.id === equipado.pet) || petsAtuais[0] || PETS[0];
+    const petsGrid = PETS.map((pet) => {
+      const desbloqueado = faixaJogador.nivel >= pet.nivelMinimo;
+      return {
+        id: pet.id,
+        nome: pet.nome,
+        icone: pet.icone,
+        cor: pet.cor,
+        nivelMinimo: pet.nivelMinimo,
+        desbloqueado,
+        selecionado: equipado.pet === pet.id,
+        click: desbloqueado ? () => acoesRef.current.equiparPet(pet.id) : undefined,
+      };
+    });
+    const itemVm = (c: Cosmetico) => {
+      const possuido = (p.itens || []).includes(c.id);
+      const equipadoAgora = equipado[c.slot] === c.id;
+      return {
+        id: c.id,
+        nome: c.nome,
+        icone: c.icone,
+        cor: c.cor,
+        slot: c.slot,
+        raridade: c.raridade,
+        raridadeTxt: NOME_RARIDADE[c.raridade],
+        raridadeCor: COR_RARIDADE[c.raridade],
+        possuido,
+        equipado: equipadoAgora,
+        preco: c.precoMoedas,
+        soRoleta: c.precoMoedas == null,
+        podeComprar: !possuido && c.precoMoedas != null && (p.moedas || 0) >= c.precoMoedas,
+        click: possuido
+          ? () => acoesRef.current.equiparItem(c.id)
+          : c.precoMoedas != null
+          ? () => acoesRef.current.comprarItem(c.id)
+          : undefined,
+      };
+    };
+    const guardaRoupa = COSMETICOS.filter((c) => (p.itens || []).includes(c.id)).map(itemVm);
+    const loja = COSMETICOS.map(itemVm);
+
     return {
       pronto,
       tela: s.tela,
@@ -732,6 +791,11 @@ export function useNurseGo() {
       streakTxt: (p.streak || 0) + "d",
       nivelTxt: NIVEIS[p.nivel || 1],
       licoesTxt: String(p.licoes || 0),
+      moedasTxt: (p.moedas || 0).toLocaleString("pt-BR"),
+      nivelJogadorNome: faixaJogador.nome,
+      nivelJogadorNum: faixaJogador.nivel,
+      petAtualIcone: petAtual.icone,
+      petAtualCor: petAtual.cor,
       nomeJogador: p.nome || "Estudante",
       energiaTxt: p.premium ? "∞" : calcEnergia(s.perfil) + "/" + ENERGIA_MAX,
       energiaMin: ENERGIA_MIN,
@@ -814,10 +878,27 @@ export function useNurseGo() {
 
       bauAberto: s.bauAberto,
       bauValor: s.bauValor,
-      bauTag: s.noAtual && s.noAtual.tipo === "bau" ? "Recompensa da unidade" : "Prêmio da roleta",
-      bauTitulo: s.bauAberto ? "+" + s.bauValor + " XP" : "Baú fechado",
+      bauEhItem: s.bauTipo === "item",
+      bauItemIcone: s.bauItem?.icone || "Gift",
+      bauItemCor: s.bauItem?.cor || "#F2C24A",
+      bauItemRaridadeTxt: s.bauItem ? NOME_RARIDADE[s.bauItem.raridade] : "",
+      bauTag:
+        s.bauTipo === "item"
+          ? "Roupa da roleta"
+          : s.noAtual && s.noAtual.tipo === "bau"
+          ? "Recompensa da unidade"
+          : "Prêmio da roleta",
+      bauTitulo: s.bauAberto
+        ? s.bauTipo === "item"
+          ? s.bauItem?.nome || "Item"
+          : "+" + s.bauValor + " XP"
+        : "Baú fechado",
       bauTexto: s.bauAberto
-        ? "XP creditado, mais 2 de energia e boost de XP 2x por 30 minutos."
+        ? s.bauTipo === "item"
+          ? "Peça equipada no seu avatar. Dá pra trocar quando quiser no guarda-roupa."
+          : "XP e moedas creditados, mais 2 de energia e boost de XP 2x por 30 minutos."
+        : s.bauTipo === "item"
+        ? "A roleta parou no item. Toque para receber a peça."
         : s.noAtual && s.noAtual.tipo === "bau"
         ? "Você chegou ao fim da unidade. Toque no baú para receber a recompensa."
         : "A roleta parou no baú. Toque para receber a recompensa.",
@@ -972,6 +1053,17 @@ export function useNurseGo() {
       foto: p.foto || null,
       avPreviewCores: avCorAtual.bg,
       avPreviewIcone: avSimboloAtual.icone,
+
+      // economia: pets e roupas
+      moedas: p.moedas || 0,
+      petAtual: { icone: petAtual.icone, cor: petAtual.cor, nome: petAtual.nome },
+      petsGrid,
+      guardaRoupa,
+      loja,
+      jalecoEquipado: COSMETICOS.find((c) => c.id === equipado.jaleco),
+      chapeuEquipado: COSMETICOS.find((c) => c.id === equipado.chapeu),
+      acessorioEquipado: COSMETICOS.find((c) => c.id === equipado.acessorio),
+
       avCores: AV_CORES.map((c) => ({ id: c.id, cores: c.bg, sel: (p.avCor || "azul") === c.id })),
       avSimbolos: AV_SIMBOLOS.map((x) => ({ id: x.id, icone: x.icone, sel: (p.avSimbolo || "coracao") === x.id })),
       fotoTitulo: p.foto ? "Trocar a foto" : "Escolher uma foto",
@@ -1014,7 +1106,15 @@ export function useNurseGo() {
           return;
         }
         if (seg.tipo === "bau") {
-          set({ tela: "bau", bauAberto: false, bauValor: 0 });
+          set({ tela: "bau", bauAberto: false, bauValor: 0, bauTipo: "xp", bauItem: null });
+          return;
+        }
+        if (seg.tipo === "item") {
+          const perfil = stRef.current.perfil as Perfil;
+          const naoPossuidos = COSMETICOS.filter((c) => !(perfil.itens || []).includes(c.id));
+          const pool2 = naoPossuidos.length ? naoPossuidos : COSMETICOS;
+          const item = pool2[Math.floor(Math.random() * pool2.length)];
+          set({ tela: "bau", bauAberto: false, bauValor: 0, bauTipo: "item", bauItem: item });
           return;
         }
         if (seg.tipo === "emergencia") {
@@ -1061,14 +1161,25 @@ export function useNurseGo() {
       },
       abrirBau: () => {
         if (stRef.current.bauAberto) return;
-        const v = 50 + Math.floor(Math.random() * 11) * 10;
         const np: Perfil = { ...(stRef.current.perfil as Perfil) };
+        const no = stRef.current.noAtual;
+        if (no && no.i === np.prog) np.prog = no.i + 1;
+
+        if (stRef.current.bauTipo === "item" && stRef.current.bauItem) {
+          const item = stRef.current.bauItem;
+          if (!(np.itens || []).includes(item.id)) np.itens = [...(np.itens || []), item.id];
+          np.equipado = { ...np.equipado, [item.slot]: item.id };
+          salvar(np);
+          set({ bauAberto: true });
+          return;
+        }
+
+        const v = 50 + Math.floor(Math.random() * 11) * 10;
         np.xp = (np.xp || 0) + v;
+        np.moedas = (np.moedas || 0) + Math.round(v * MOEDAS_POR_XP);
         np.boostAte = Date.now() + 30 * 60000;
         np.energia = Math.min(ENERGIA_MAX, calcEnergia(np) + 2);
         np.energiaTs = Date.now();
-        const no = stRef.current.noAtual;
-        if (no && no.i === np.prog) np.prog = no.i + 1;
         salvar(np);
         set({ bauAberto: true, bauValor: v });
       },
@@ -1124,9 +1235,42 @@ export function useNurseGo() {
       irRevisao: () => set({ tela: "revisao" }),
       irPerfil: () => set({ tela: "perfil" }),
       irAvatar: () => set({ tela: "avatar" }),
+      irLoja: () => set({ tela: "loja" }),
       escolherCor: (id: string) => salvar({ ...(stRef.current.perfil as Perfil), avCor: id }),
       escolherSimbolo: (id: string) => salvar({ ...(stRef.current.perfil as Perfil), avSimbolo: id }),
       escolherSituacao: (n: string) => salvar({ ...(stRef.current.perfil as Perfil), situacao: n }),
+      /** compra na loja (se ainda não tem e tem moeda) e já equipa */
+      comprarItem: (id: string) => {
+        const p = stRef.current.perfil as Perfil;
+        const item = COSMETICOS.find((c) => c.id === id);
+        if (!item) return;
+        const possuido = (p.itens || []).includes(id);
+        if (!possuido) {
+          if (item.precoMoedas == null || p.moedas < item.precoMoedas) return;
+          salvar({
+            ...p,
+            moedas: p.moedas - item.precoMoedas,
+            itens: [...(p.itens || []), id],
+            equipado: { ...p.equipado, [item.slot]: id },
+          });
+          return;
+        }
+        salvar({ ...p, equipado: { ...p.equipado, [item.slot]: id } });
+      },
+      equiparItem: (id: string) => {
+        const p = stRef.current.perfil as Perfil;
+        const item = COSMETICOS.find((c) => c.id === id);
+        if (!item || !(p.itens || []).includes(id)) return;
+        salvar({ ...p, equipado: { ...p.equipado, [item.slot]: id } });
+      },
+      equiparPet: (id: string) => {
+        const p = stRef.current.perfil as Perfil;
+        const pet = PETS.find((x) => x.id === id);
+        if (!pet) return;
+        const nivel = nivelJogador(p.xp || 0).nivel;
+        if (nivel < pet.nivelMinimo) return;
+        salvar({ ...p, equipado: { ...p.equipado, pet: id } });
+      },
       setInstituicao: (v: string) =>
         salvar({ ...(stRef.current.perfil as Perfil), instituicao: v.slice(0, 48) }),
       setCurso: (v: string) => salvar({ ...(stRef.current.perfil as Perfil), curso: v.slice(0, 48) }),
@@ -1146,6 +1290,7 @@ export function useNurseGo() {
     }),
     [set, salvar, girar, responder, avancar, finalizar, iniciarTimer, comecarNivel, pool]
   );
+  acoesRef.current = acoes;
 
   return { vm, acoes };
 }

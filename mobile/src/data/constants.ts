@@ -6,7 +6,7 @@ export const CHAVE = "nursego_v1";
 
 export const NIVEIS: Record<number, string> = { 1: "Base", 2: "Intermediário", 3: "Avançado" };
 
-export type TipoSegmento = "rodada" | "emergencia" | "bau" | "bonus";
+export type TipoSegmento = "rodada" | "emergencia" | "bau" | "bonus" | "item";
 export interface Segmento {
   tipo: TipoSegmento;
   k: "cardio" | "resp" | "misto" | "emerg";
@@ -19,7 +19,7 @@ export const SEGS: Segmento[] = [
   { tipo: "emergencia", k: "emerg", nome: "Emergência", fg: "#fff" },
   { tipo: "rodada", k: "resp", nome: "Respiratório", fg: "#0A2540" },
   { tipo: "bau", k: "misto", nome: "Baú", fg: "#fff" },
-  { tipo: "rodada", k: "misto", nome: "Misto", fg: "#fff" },
+  { tipo: "item", k: "misto", nome: "Item", fg: "#fff" },
   { tipo: "bonus", k: "misto", nome: "Bônus x2", fg: "#fff" },
 ];
 
@@ -188,3 +188,93 @@ export const CONQUISTAS: Conquista[] = [
 /** ritmo padrão (props do protótipo, agora fixos) */
 export const TEMPO_QUESTAO = 30;
 export const META_SEMANAL = 5;
+
+// ─────────────────────────────────────────────────────────────
+// Economia: moedas, nível de jogador, pets e roupas.
+// Visual ainda é placeholder (cor + ícone Lucide) até termos arte
+// própria do mascote — ver README > "Mascote e personalização".
+// ─────────────────────────────────────────────────────────────
+
+/** % do XP de cada rodada que também vira moeda */
+export const MOEDAS_POR_XP = 0.1;
+
+export interface FaixaNivel {
+  nivel: number;
+  xpMin: number;
+  nome: string;
+}
+
+/** nível de jogador — derivado do XP total, separado do "nivel" de nivelamento */
+export const NIVEIS_JOGADOR: FaixaNivel[] = [
+  { nivel: 1, xpMin: 0, nome: "Estagiário" },
+  { nivel: 2, xpMin: 500, nome: "Auxiliar" },
+  { nivel: 3, xpMin: 1500, nome: "Técnico" },
+  { nivel: 4, xpMin: 3500, nome: "Enfermeiro Jr." },
+  { nivel: 5, xpMin: 7000, nome: "Enfermeiro" },
+  { nivel: 6, xpMin: 12000, nome: "Enfermeiro Sr." },
+  { nivel: 7, xpMin: 20000, nome: "Especialista" },
+  { nivel: 8, xpMin: 35000, nome: "Mestre da Saúde" },
+];
+
+export interface PetDef {
+  id: string;
+  nome: string;
+  nivelMinimo: number;
+  icone: string;
+  cor: string;
+}
+
+export const PETS: PetDef[] = [
+  { id: "pintinho", nome: "Pimpolho", nivelMinimo: 1, icone: "Bird", cor: "#F2C24A" },
+  { id: "gato", nome: "Bisturi", nivelMinimo: 2, icone: "Cat", cor: "#6B4FCF" },
+  { id: "cachorro", nome: "Plantão", nivelMinimo: 3, icone: "Dog", cor: "#E08A1E" },
+  { id: "coelho", nome: "Curativo", nivelMinimo: 4, icone: "Rabbit", cor: "#E8735C" },
+  { id: "tartaruga", nome: "Vovó", nivelMinimo: 5, icone: "Turtle", cor: "#05A67A" },
+  { id: "peixe", nome: "Soro", nivelMinimo: 6, icone: "Fish", cor: "#1B6FD1" },
+  { id: "esquilo", nome: "Cafeína", nivelMinimo: 7, icone: "Squirrel", cor: "#B96A16" },
+  { id: "coruja", nome: "Noturno", nivelMinimo: 8, icone: "Bird", cor: "#0A2540" },
+];
+
+export type SlotItem = "jaleco" | "chapeu" | "acessorio";
+export type Raridade = "comum" | "raro" | "epico" | "legendario";
+
+export const COR_RARIDADE: Record<Raridade, string> = {
+  comum: "#8FA3AE",
+  raro: "#1B6FD1",
+  epico: "#6B4FCF",
+  legendario: "#F2994A",
+};
+
+export const NOME_RARIDADE: Record<Raridade, string> = {
+  comum: "Comum",
+  raro: "Raro",
+  epico: "Épico",
+  legendario: "Legendário",
+};
+
+export interface Cosmetico {
+  id: string;
+  slot: SlotItem;
+  nome: string;
+  raridade: Raridade;
+  /** preço em moedas na loja; null = não é vendido, só roleta */
+  precoMoedas: number | null;
+  icone: string;
+  cor: string;
+}
+
+export const COSMETICOS: Cosmetico[] = [
+  { id: "jaleco-branco", slot: "jaleco", nome: "Jaleco branco", raridade: "comum", precoMoedas: 0, icone: "Shirt", cor: "#F5F8F9" },
+  { id: "jaleco-azul", slot: "jaleco", nome: "Jaleco azul", raridade: "comum", precoMoedas: 40, icone: "Shirt", cor: "#1B6FD1" },
+  { id: "jaleco-verde", slot: "jaleco", nome: "Jaleco verde-cirúrgico", raridade: "raro", precoMoedas: 90, icone: "Shirt", cor: "#05A67A" },
+  { id: "jaleco-dourado", slot: "jaleco", nome: "Jaleco dourado", raridade: "legendario", precoMoedas: null, icone: "Shirt", cor: "#F2C24A" },
+
+  { id: "touca-descartavel", slot: "chapeu", nome: "Touca descartável", raridade: "comum", precoMoedas: 20, icone: "CircleDot", cor: "#DCE6EA" },
+  { id: "gorro-cirurgico", slot: "chapeu", nome: "Gorro cirúrgico estampado", raridade: "raro", precoMoedas: 70, icone: "CircleDot", cor: "#C2415A" },
+  { id: "toca-noturna", slot: "chapeu", nome: "Touca de plantão noturno", raridade: "epico", precoMoedas: null, icone: "CircleDot", cor: "#0A2540" },
+
+  { id: "estetoscopio", slot: "acessorio", nome: "Estetoscópio", raridade: "comum", precoMoedas: 30, icone: "Stethoscope", cor: "#5A7383" },
+  { id: "cracha", slot: "acessorio", nome: "Crachá de plantão", raridade: "raro", precoMoedas: 60, icone: "IdCard", cor: "#F2994A" },
+  { id: "oculos", slot: "acessorio", nome: "Óculos de proteção", raridade: "raro", precoMoedas: 60, icone: "Glasses", cor: "#1B6FD1" },
+  { id: "medalha-ouro", slot: "acessorio", nome: "Medalha de honra", raridade: "legendario", precoMoedas: null, icone: "Medal", cor: "#F2C24A" },
+];

@@ -62,6 +62,7 @@ export function NurseGo() {
       {vm.tela === "fim" && <TelaFim vm={vm} acoes={acoes} />}
       {vm.tela === "perfil" && <TelaPerfil vm={vm} acoes={acoes} />}
       {vm.tela === "revisao" && <TelaRevisao vm={vm} acoes={acoes} />}
+      {vm.tela === "loja" && <TelaLoja vm={vm} acoes={acoes} />}
     </View>
   );
 }
@@ -228,12 +229,16 @@ function TelaMapa({ vm, acoes }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: "#F5F8F9" }}>
       <SafeAreaView edges={["top"]} style={{ backgroundColor: "#0A2540" }}>
-        <View style={{ paddingHorizontal: 18, paddingVertical: 13, flexDirection: "row", alignItems: "center", gap: 15 }}>
+        <View style={{ paddingHorizontal: 18, paddingVertical: 13, flexDirection: "row", alignItems: "center", gap: 13, flexWrap: "wrap" }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <Icon name="Sparkles" size={16} color="#7BE3C0" />
             <Text style={{ fontFamily: FT7, fontSize: 15, color: "#fff" }}>{vm.xpTxt}</Text>
             <Text style={{ fontSize: 11.5, color: "rgba(255,255,255,.6)" }}>XP</Text>
           </View>
+          <Pressable onPress={acoes.irLoja} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Icon name="Coins" size={16} color="#F2C24A" />
+            <Text style={{ fontFamily: FT7, fontSize: 15, color: "#F2C24A" }}>{vm.moedasTxt}</Text>
+          </Pressable>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <Icon name="Flame" size={16} color="#F2994A" />
             <Text style={{ fontFamily: FT7, fontSize: 15, color: "#F2994A" }}>{vm.streakTxt}</Text>
@@ -245,7 +250,6 @@ function TelaMapa({ vm, acoes }: Props) {
           <View
             style={{
               marginLeft: "auto",
-              fontSize: 11,
               backgroundColor: "#7BE3C0",
               paddingHorizontal: 10,
               paddingVertical: 5,
@@ -455,12 +459,32 @@ function TelaAvatar({ vm, acoes }: Props) {
             <Text style={{ fontFamily: FT7, fontSize: 17, color: "#fff" }}>Seu avatar</Text>
           </View>
           <View style={{ alignItems: "center", marginTop: 20 }}>
-            <LinearGradient
-              colors={vm.avPreviewCores}
-              style={{ width: 112, height: 112, borderRadius: 36, alignItems: "center", justifyContent: "center" }}
-            >
-              <Icon name={vm.avPreviewIcone} size={50} color="#fff" />
-            </LinearGradient>
+            <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+              <LinearGradient
+                colors={vm.avPreviewCores}
+                style={{ width: 112, height: 112, borderRadius: 36, alignItems: "center", justifyContent: "center" }}
+              >
+                <Icon name={vm.avPreviewIcone} size={50} color="#fff" />
+              </LinearGradient>
+              <View
+                style={{
+                  marginLeft: -18,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  backgroundColor: vm.petAtual.cor,
+                  borderWidth: 3,
+                  borderColor: "#0A2540",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon name={vm.petAtual.icone} size={22} color="#fff" />
+              </View>
+            </View>
+            <Text style={{ marginTop: 8, fontSize: 11.5, color: "rgba(255,255,255,.65)" }}>
+              {vm.nivelJogadorNome} · nível {vm.nivelJogadorNum}
+            </Text>
           </View>
         </View>
       </SafeAreaView>
@@ -526,6 +550,142 @@ function TelaAvatar({ vm, acoes }: Props) {
             <Text style={{ color: "#C2415A", fontFamily: FB7, fontSize: 12.5 }}>Remover foto e usar o avatar</Text>
           </Pressable>
         )}
+
+        <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6, marginTop: 26 }}>
+          <Text style={{ fontFamily: FT7, fontSize: 14, color: "#0A2540" }}>Seu bichinho</Text>
+          <Text style={{ fontSize: 12, color: "#5A7383" }}>desbloqueia subindo de nível</Text>
+        </View>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 9, marginTop: 10 }}>
+          {vm.petsGrid.map((pet: VM) => (
+            <Pressable
+              key={pet.id}
+              onPress={pet.click}
+              disabled={!pet.desbloqueado}
+              style={{
+                width: "22%",
+                aspectRatio: 1,
+                borderRadius: 16,
+                backgroundColor: pet.desbloqueado ? "#fff" : "#F1F5F6",
+                borderWidth: 2,
+                borderColor: pet.selecionado ? "#0A2540" : "#DCE6EA",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+              }}
+            >
+              <Icon name={pet.desbloqueado ? pet.icone : "Lock"} size={20} color={pet.desbloqueado ? pet.cor : "#B4C4CC"} />
+              <Text style={{ fontSize: 9, fontFamily: FB6, color: pet.desbloqueado ? "#5A7383" : "#B4C4CC" }} numberOfLines={1}>
+                {pet.desbloqueado ? pet.nome : "Nv. " + pet.nivelMinimo}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 26 }}>
+          <Text style={{ fontFamily: FT7, fontSize: 14, color: "#0A2540", flex: 1 }}>Guarda-roupa</Text>
+          <Pressable onPress={acoes.irLoja} style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+            <Icon name="ShoppingBag" size={14} color="#1B6FD1" />
+            <Text style={{ fontSize: 12.5, fontFamily: FB7, color: "#1B6FD1" }}>Ir à loja</Text>
+          </Pressable>
+        </View>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 9, marginTop: 10 }}>
+          {vm.guardaRoupa.map((item: VM) => (
+            <Pressable
+              key={item.id}
+              onPress={item.click}
+              style={{
+                width: "22%",
+                aspectRatio: 1,
+                borderRadius: 16,
+                backgroundColor: "#fff",
+                borderWidth: 2,
+                borderColor: item.equipado ? "#0A2540" : "#DCE6EA",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon name={item.icone} size={20} color={item.cor === "#F5F8F9" ? "#B4C4CC" : item.cor} />
+            </Pressable>
+          ))}
+          {vm.guardaRoupa.length === 0 && (
+            <Text style={{ fontSize: 12.5, color: "#5A7383", padding: 4 }}>
+              Nenhuma roupa ainda — ganhe na roleta ou compre na loja.
+            </Text>
+          )}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+// ───────────────────────── Loja ─────────────────────────
+function TelaLoja({ vm, acoes }: Props) {
+  const porSlot = (slot: string) => vm.loja.filter((i: VM) => i.slot === slot);
+  const secoes: [string, string][] = [
+    ["jaleco", "Jalecos"],
+    ["chapeu", "Chapéus e toucas"],
+    ["acessorio", "Acessórios"],
+  ];
+  return (
+    <View style={{ flex: 1, backgroundColor: "#F5F8F9" }}>
+      <SafeAreaView edges={["top"]} style={{ backgroundColor: "#0A2540" }}>
+        <View style={{ padding: 20 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <BotaoVoltar onPress={acoes.irAvatar} />
+            <Text style={{ fontFamily: FT7, fontSize: 17, color: "#fff", flex: 1 }}>Loja</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(255,255,255,.12)", paddingHorizontal: 12, paddingVertical: 7, borderRadius: 99 }}>
+              <Icon name="Coins" size={14} color="#F2C24A" />
+              <Text style={{ color: "#F2C24A", fontFamily: FT7, fontSize: 13 }}>{vm.moedasTxt}</Text>
+            </View>
+          </View>
+          <Text style={{ marginTop: 8, fontSize: 12.5, color: "rgba(255,255,255,.6)", lineHeight: 18 }}>
+            Ganhe moedas jogando lições e rodadas. Itens marcados "só na roleta" não são vendidos — só saem de prêmio.
+          </Text>
+        </View>
+      </SafeAreaView>
+
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        {secoes.map(([slot, titulo]) => (
+          <View key={slot} style={{ marginBottom: 22 }}>
+            <Text style={{ fontFamily: FT7, fontSize: 14, color: "#0A2540", marginBottom: 10 }}>{titulo}</Text>
+            <View style={{ gap: 8 }}>
+              {porSlot(slot).map((item: VM) => (
+                <View
+                  key={item.id}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#fff", borderWidth: 1, borderColor: item.equipado ? "#0A2540" : "#DCE6EA", borderRadius: 16, padding: 13 }}
+                >
+                  <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: item.cor === "#F5F8F9" ? "#EEF3F5" : item.cor, alignItems: "center", justifyContent: "center" }}>
+                    <Icon name={item.icone} size={20} color={item.cor === "#F5F8F9" ? "#8FA3AE" : "#fff"} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: FB7, fontSize: 13.5, color: "#0A2540" }}>{item.nome}</Text>
+                    <Text style={{ fontSize: 11, fontFamily: FB6, color: item.raridadeCor, marginTop: 1 }}>{item.raridadeTxt}</Text>
+                  </View>
+                  {item.possuido ? (
+                    <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: item.equipado ? "#0A2540" : "#EEF3F5" }}>
+                      <Text style={{ fontSize: 12, fontFamily: FB7, color: item.equipado ? "#fff" : "#5A7383" }}>
+                        {item.equipado ? "Equipado" : "Equipar"}
+                      </Text>
+                    </View>
+                  ) : item.soRoleta ? (
+                    <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: "#F1F5F6" }}>
+                      <Text style={{ fontSize: 11, fontFamily: FB6, color: "#8FA3AE" }}>Só na roleta</Text>
+                    </View>
+                  ) : (
+                    <Pressable
+                      onPress={item.click}
+                      disabled={!item.podeComprar}
+                      style={{ flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: item.podeComprar ? "#05A67A" : "#EEF3F5" }}
+                    >
+                      <Icon name="Coins" size={13} color={item.podeComprar ? "#fff" : "#8FA3AE"} />
+                      <Text style={{ fontSize: 12, fontFamily: FB7, color: item.podeComprar ? "#fff" : "#8FA3AE" }}>{item.preco}</Text>
+                    </Pressable>
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
@@ -592,13 +752,25 @@ function TelaBau({ vm, acoes }: Props) {
           onPress={acoes.abrirBau}
           disabled={vm.bauAberto}
           style={[
-            { width: 134, height: 134, borderRadius: 34, backgroundColor: vm.bauAberto ? "#7BE3C0" : "#F2C24A", alignItems: "center", justifyContent: "center" },
+            {
+              width: 134,
+              height: 134,
+              borderRadius: 34,
+              backgroundColor: vm.bauAberto ? (vm.bauEhItem ? vm.bauItemCor : "#7BE3C0") : "#F2C24A",
+              alignItems: "center",
+              justifyContent: "center",
+            },
             sombra("rgba(0,0,0,.28)", 12),
           ]}
         >
-          <Icon name={vm.bauAberto ? "Sparkles" : "Gift"} size={58} color="#0A2540" />
+          <Icon name={vm.bauAberto ? (vm.bauEhItem ? vm.bauItemIcone : "Sparkles") : "Gift"} size={58} color={vm.bauAberto && vm.bauEhItem ? "#fff" : "#0A2540"} />
         </Pressable>
-        <Text style={{ fontFamily: FT, fontSize: 25, color: "#fff" }}>{vm.bauTitulo}</Text>
+        <Text style={{ fontFamily: FT, fontSize: 25, color: "#fff", textAlign: "center" }}>{vm.bauTitulo}</Text>
+        {vm.bauAberto && vm.bauEhItem && (
+          <Text style={{ fontSize: 11, letterSpacing: 1, textTransform: "uppercase", fontFamily: FB7, color: vm.bauItemCor }}>
+            {vm.bauItemRaridadeTxt}
+          </Text>
+        )}
         <Text style={{ fontSize: 14, lineHeight: 21, color: "rgba(255,255,255,.72)", textAlign: "center", maxWidth: 290 }}>{vm.bauTexto}</Text>
         <Pressable onPress={acoes.irMapa} style={{ width: "100%", padding: 16, borderRadius: 18, backgroundColor: "#fff", alignItems: "center" }}>
           <Text style={{ fontFamily: FT, fontSize: 16, color: "#0A2540" }}>Voltar à trilha</Text>
